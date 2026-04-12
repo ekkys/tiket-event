@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Scan - {{ config('app.name') }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5C3BFE;
+            --bg: #F8F9FD;
+            --sidebar: #FFFFFF;
+            --card: #FFFFFF;
+            --text: #1A1033;
+            --muted: #7B7A8E;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid #E2E8F0; padding: 32px 24px; display: flex; flex-direction: column; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--primary); margin-bottom: 48px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; text-decoration: none; color: var(--muted); font-weight: 600; margin-bottom: 8px; transition: 0.2s; }
+        .nav-link.active { background: var(--primary); color: white; }
+        .nav-link:hover:not(.active) { background: #F1F5F9; color: var(--text); }
+
+        .main-content { flex: 1; padding: 40px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .header h1 { font-size: 1.75rem; font-weight: 800; }
+
+        .card { background: white; border-radius: 24px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px 16px; border-bottom: 2px solid #F1F5F9; font-size: 13px; font-weight: 700; color: var(--muted); }
+        td { padding: 16px; border-bottom: 1px solid #F1F5F9; font-size: 14px; }
+        
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .badge-success { background: #DCFCE7; color: #166534; }
+        .badge-error { background: #FEE2E2; color: #991B1B; }
+
+        .pagination { margin-top: 24px; display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">🎟️ Admin</div>
+    <nav style="flex: 1;">
+        <a href="{{ route('admin.dashboard') }}" class="nav-link">📊 Dashboard</a>
+        <a href="{{ route('admin.events') }}" class="nav-link">📅 Events</a>
+        <a href="{{ route('admin.registrations') }}" class="nav-link">👥 Peserta</a>
+        <a href="{{ route('admin.scan-logs') }}" class="nav-link active">📋 Log Scan</a>
+        <a href="{{ route('scanner.index') }}" class="nav-link">📷 Scanner</a>
+    </nav>
+    <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid #F1F5F9;">
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="nav-link" style="width: 100%; border: none; background: none; cursor: pointer; color: #DC2626;">🚪 Keluar</button>
+        </form>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <h1>Log Scanner</h1>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Peserta</th>
+                    <th>NIK</th>
+                    <th>Status</th>
+                    <th>Pesan</th>
+                    <th>Scanner</th>
+                    <th>Waktu</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($logs as $log)
+                <tr>
+                    <td>
+                        @if($log->ticket?->registration)
+                            <div style="font-weight:700;">{{ $log->ticket->registration->full_name }}</div>
+                            <div style="font-size:11px; color:var(--muted);">{{ $log->token }}</div>
+                        @else
+                            <span style="font-family: monospace; font-size: 12px; color: var(--muted);">{{ $log->token }}</span>
+                        @endif
+                    </td>
+                    <td style="font-size: 12px;">{{ $log->ticket?->registration->id_number ?? '-' }}</td>
+                    <td>
+                        <span class="badge badge-{{ $log->success ? 'success' : 'error' }}">
+                            {{ $log->success ? 'Berhasil' : 'Gagal' }}
+                        </span>
+                    </td>
+                    <td>{{ $log->message }}</td>
+                    <td style="font-weight:600;">{{ $log->scanner_name }}</td>
+                    <td style="color:var(--muted); font-size:12px;">{{ $log->created_at->format('d/m/Y H:i:s') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            {{ $logs->links() }}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
