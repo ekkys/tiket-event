@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TicketMail;
 
 class Ticket extends Model
 {
@@ -11,6 +13,14 @@ class Ticket extends Model
         'registration_id', 'token', 'qr_code_path',
         'is_used', 'used_at', 'used_by', 'used_device'
     ];
+
+    protected static function booted()
+    {
+        static::created(function ($ticket) {
+            Mail::to($ticket->registration->email)
+                ->queue(new TicketMail($ticket->registration, $ticket));
+        });
+    }
 
     protected $casts = [
         'is_used' => 'boolean',

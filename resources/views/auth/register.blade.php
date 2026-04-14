@@ -1,115 +1,174 @@
-{{-- FILE: resources/views/auth/register.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Penyelenggara - {{ config('app.name') }}</title>
+    <title>Daftar - {{ config('app.name') }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #5C3BFE;
-            --bg: #F8F9FD;
-            --text: #1A1033;
-            --muted: #7B7A8E;
+            --primary-light: #8B5CF6;
+            --bg: #F8FAFC;
+            --text: #0F172A;
+            --muted: #64748B;
+            --border: #E2E8F0;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #0F0A2A;
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #0F0A2A; 
+            background-image: 
+                radial-gradient(circle at 100% 0%, rgba(92, 59, 254, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 0% 100%, rgba(139, 92, 246, 0.15) 0%, transparent 30%);
+            color: var(--text); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            padding: 40px 24px; 
+            margin: 0;
+        }
+        
+        .register-card { 
+            background: white; 
+            width: 100%; 
+            max-width: 500px; 
+            border-radius: 40px; 
+            padding: 56px 48px; 
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.6); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            animation: slideUp 0.6s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo { font-weight: 800; font-size: 2rem; color: var(--primary); margin-bottom: 40px; text-align: center; letter-spacing: -1px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 12px; color: var(--text); letter-spacing: -0.5px; }
+        .header p { color: var(--muted); font-size: 15px; font-weight: 500; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+        .form-group { margin-bottom: 0; }
+        label { display: block; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+        input { 
+            width: 100%; 
+            padding: 16px 20px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border); 
+            font-family: inherit; 
+            font-size: 15px; 
+            outline: none; 
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            background: #F8FAFC;
+        }
+        input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(92, 59, 254, 0.1); }
+
+        .btn { 
+            width: 100%; 
+            padding: 18px; 
+            border-radius: 18px; 
+            border: none; 
+            font-family: inherit; 
+            font-weight: 800; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
+            gap: 10px;
         }
-        .login-card {
-            background: white;
-            padding: 48px;
-            border-radius: 32px;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
+            color: white; 
+            margin-top: 32px; 
+            box-shadow: 0 10px 25px rgba(92, 59, 254, 0.3);
         }
-        .logo { font-size: 2.5rem; text-align: center; margin-bottom: 24px; }
-        h1 { font-size: 1.75rem; font-weight: 800; text-align: center; margin-bottom: 8px; color: var(--text); }
-        .sub { text-align: center; color: var(--muted); margin-bottom: 40px; font-size: 14px; }
-        
-        .form-group { margin-bottom: 24px; }
-        label { display: block; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-        input {
-            width: 100%;
-            padding: 14px 16px;
-            border-radius: 12px;
-            border: 1px solid #E2E8F0;
-            font-family: inherit;
-            font-size: 14px;
-            transition: 0.2s;
-            outline: none;
-        }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(92, 59, 254, 0.1); }
-        
-        .btn-login {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-family: inherit;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-top: 12px;
-        }
-        .btn-login:hover { background: #4B2EE0; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(92, 59, 254, 0.3); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(92, 59, 254, 0.4); }
 
-        .error-msg { color: #DC2626; font-size: 12px; margin-top: 4px; font-weight: 600; }
+        .error-msg { color: #DC2626; font-size: 12px; font-weight: 600; margin-top: 6px; }
         
-        .footer-links { text-align: center; margin-top: 32px; font-size: 14px; color: var(--muted); }
-        .footer-links a { color: var(--primary); text-decoration: none; font-weight: 700; }
+        .footer-note { text-align: center; margin-top: 40px; font-size: 15px; color: var(--muted); font-weight: 500; }
+        .footer-note a { color: var(--primary); text-decoration: none; font-weight: 800; }
+        .footer-note a:hover { text-decoration: underline; }
+
+        @media (max-width: 480px) {
+            .register-card { padding: 48px 24px; }
+            .header h1 { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
 
-<div class="login-card">
-    <div class="logo">🎟️</div>
-    <h1>Buat Akun</h1>
-    <p class="sub">Daftar sebagai penyelenggara event baru</p>
+<div class="register-card">
+    <div class="logo">🎟️ {{ config('app.name') }}</div>
+    <div class="header">
+        <h1>Buat Akun Penyelenggara</h1>
+        <p>Mulai kelola event Anda dengan profesional</p>
+    </div>
 
     <form action="{{ route('register.post') }}" method="POST">
         @csrf
-        <div class="form-group">
-            <label>Nama Lengkap</label>
-            <input type="text" name="name" value="{{ old('name') }}" placeholder="Contoh: Budi Santoso" required autofocus>
-            @error('name')<div class="error-msg">{{ $message }}</div>@enderror
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" name="name" value="{{ old('name') }}" placeholder="Contoh: Budi Santoso" required autofocus>
+                @error('name')<div class="error-msg">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Alamat Email</label>
+                <input type="email" name="email" value="{{ old('email') }}" placeholder="admin@gmail.com" required>
+                @error('email')<div class="error-msg">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div style="position: relative;">
+                    <input type="password" name="password" id="password" placeholder="Minimal 8 karakter" style="padding-right: 50px;" required>
+                    <button type="button" onclick="togglePassword('password', 'toggleIcon1')" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); padding: 0; display: flex; align-items: center;">
+                        <svg id="toggleIcon1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
+                @error('password')<div class="error-msg">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="form-group">
+                <label>Konfirmasi Password</label>
+                <div style="position: relative;">
+                    <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Masukan kembali password" style="padding-right: 50px;" required>
+                    <button type="button" onclick="togglePassword('password_confirmation', 'toggleIcon2')" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); padding: 0; display: flex; align-items: center;">
+                        <svg id="toggleIcon2" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Alamat Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" placeholder="nama@email.com" required>
-            @error('email')<div class="error-msg">{{ $message }}</div>@enderror
-        </div>
-
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" placeholder="Min. 8 karakter" required>
-            @error('password')<div class="error-msg">{{ $message }}</div>@enderror
-        </div>
-
-        <div class="form-group">
-            <label>Konfirmasi Password</label>
-            <input type="password" name="password_confirmation" placeholder="Ulangi password" required>
-        </div>
-
-        <button type="submit" class="btn-login">Daftar Sekarang</button>
+        <button type="submit" class="btn btn-primary">Daftar Sekarang</button>
     </form>
 
-    <div class="footer-links">
-        Sudah punya akun? <a href="{{ route('login') }}">Masuk</a>
+    <div class="footer-note">
+        Sudah punya akun? <a href="{{ route('login') }}">Masuk Log</a>
     </div>
 </div>
 
+<script>
+function togglePassword(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+    } else {
+        input.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+    }
+}
+</script>
 </body>
 </html>

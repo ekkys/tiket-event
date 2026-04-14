@@ -3,7 +3,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Scanner Tiket - {{ config('app.name') }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -25,6 +25,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         header {
@@ -34,10 +35,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .logo { font-weight: 800; font-size: 1.2rem; }
-        .stats { font-size: 13px; font-weight: 600; opacity: 0.8; }
+        .logo { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
+        .stats { font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 100px; }
 
         main {
             flex: 1;
@@ -49,24 +53,35 @@
             width: 100%;
         }
 
-        #reader {
+        .scanner-container {
+            position: relative;
             width: 100%;
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
-            border: 2px solid rgba(92,59,254,0.3);
             background: #000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 2px solid rgba(92,59,254,0.3);
+        }
+
+        #reader {
+            width: 100% !important;
+            border: none !important;
+        }
+
+        #reader__scan_region {
+            background: #000 !important;
         }
 
         .controls {
-            margin-top: 20px;
-            display: flex;
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
         .btn {
-            flex: 1;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 16px;
             border: none;
             font-family: inherit;
             font-weight: 700;
@@ -75,96 +90,127 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
         }
 
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.1); color: white; }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 8px 16px rgba(92,59,254,0.3); }
+        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; }
 
         #result {
             margin-top: 24px;
-            border-radius: 20px;
-            padding: 24px;
+            border-radius: 24px;
+            padding: 32px 24px;
             background: var(--card);
             display: none;
-            animation: slideUp 0.3s ease;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
         }
 
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .res-icon { font-size: 3rem; margin-bottom: 16px; text-align: center; }
-        .res-title { font-size: 1.25rem; font-weight: 800; text-align: center; margin-bottom: 8px; }
-        .res-msg { text-align: center; font-size: 14px; opacity: 0.8; margin-bottom: 20px; line-height: 1.5; }
+        .res-icon { font-size: 4rem; margin-bottom: 20px; text-align: center; }
+        .res-title { font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .res-msg { text-align: center; font-size: 15px; opacity: 0.7; margin-bottom: 24px; line-height: 1.6; }
 
         .res-info {
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 8px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .info-row:last-child { margin-bottom: 0; }
-        .info-key { opacity: 0.6; }
-        .info-val { font-weight: 700; }
+        .info-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .info-key { opacity: 0.5; font-weight: 500; }
+        .info-val { font-weight: 700; color: #fff; }
 
-        .valid { border: 3px solid var(--success); }
-        .invalid { border: 3px solid var(--error); }
-        .used { border: 3px solid var(--warning); }
+        .valid { border: 2px solid var(--success); box-shadow: 0 0 30px rgba(0,196,140,0.2); }
+        .invalid { border: 2px solid var(--error); box-shadow: 0 0 30px rgba(255,71,87,0.2); }
+        .used { border: 2px solid var(--warning); box-shadow: 0 0 30px rgba(255,184,0,0.2); }
 
         #manualInput {
-            margin-top: 20px;
+            margin-top: 24px;
             display: none;
+            animation: fadeIn 0.3s ease;
         }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         input {
             width: 100%;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 16px;
             border: 2px solid rgba(255,255,255,0.1);
             background: rgba(255,255,255,0.05);
             color: white;
             font-family: inherit;
-            margin-bottom: 12px;
+            font-size: 16px;
+            margin-bottom: 16px;
+            outline: none;
+            transition: 0.2s;
         }
+        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
 
         .history {
-            margin-top: 32px;
+            margin-top: 40px;
+            margin-bottom: 40px;
         }
-        .history-title { font-size: 14px; font-weight: 700; opacity: 0.5; margin-bottom: 12px; text-transform: uppercase; }
+        .history-title { font-size: 12px; font-weight: 800; opacity: 0.4; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1.5px; }
         .history-item {
             background: rgba(255,255,255,0.03);
-            padding: 12px 16px;
-            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 16px;
+            border-radius: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 13px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(-10px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .nav-back { color: white; text-decoration: none; font-size: 13px; font-weight: 700; opacity: 0.6; display: flex; align-items: center; gap: 4px; }
+        .nav-back:hover { opacity: 1; }
+
+        @media (max-width: 480px) {
+            main { padding: 16px; }
+            .header { padding: 16px; }
+            .res-icon { font-size: 3.5rem; }
+            .btn { padding: 14px; font-size: 13px; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">🎟️ TIKET SCAN</div>
+    <a href="{{ route('admin.dashboard') }}" class="nav-back">← Dashboard</a>
     <div class="stats">Checked In: <span id="checkCount">0</span></div>
 </header>
 
 <main>
-    <div id="reader"></div>
+    <div class="scanner-container">
+        <div id="reader"></div>
+    </div>
 
     <div class="controls">
-        <button class="btn btn-outline" id="torchBtn">🔦 Senter</button>
-        <button class="btn btn-outline" id="inputBtn">⌨️ Manual</button>
+        <button class="btn btn-outline" id="inputBtn">⌨️ Input Manual</button>
+        <button class="btn btn-outline" id="switchCamBtn">🔄 Switch Camera</button>
     </div>
 
     <div id="manualInput">
-        <input type="text" id="tokenInput" placeholder="Masukkan token tiket...">
-        <button class="btn btn-primary" onclick="verifyToken(document.getElementById('tokenInput').value)">Verifikasi</button>
+        <input type="text" id="tokenInput" placeholder="Masukkan token tiket..." autocomplete="off">
+        <button class="btn btn-primary" style="width: 100%;" onclick="verifyToken(document.getElementById('tokenInput').value)">Verifikasi Tiket</button>
     </div>
 
     <div id="result">
@@ -183,7 +229,7 @@
             </div>
         </div>
         
-        <button class="btn btn-primary" style="margin-top: 20px;" onclick="resetScanner()">Scan Berikutnya</button>
+        <button class="btn btn-primary" style="margin-top: 24px; width: 100%;" onclick="resetScanner()">Scan Tiket Lain</button>
     </div>
 
     <div class="history">
@@ -194,13 +240,28 @@
 
 <script>
 let html5QrCode;
-const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+let currentCameraId;
+let cameras = [];
 
-function onScanSuccess(decodedText, decodedResult) {
-    // QR code is usually a URL: https://.../v/token
-    // We need just the token
-    const parts = decodedText.split('/');
-    const token = parts[parts.length - 1];
+const config = { 
+    fps: 15, 
+    qrbox: (viewfinderWidth, viewfinderHeight) => {
+        let size = Math.min(viewfinderWidth, viewfinderHeight) * 0.7;
+        return { width: size, height: size };
+    },
+    aspectRatio: 1.0
+};
+
+function onScanSuccess(decodedText) {
+    // Extract token from URL or use text directly
+    let token = decodedText;
+    if (decodedText.includes('/')) {
+        const parts = decodedText.split('/');
+        token = parts[parts.length - 1];
+    }
+    
+    // Vibrate device if supported
+    if (navigator.vibrate) navigator.vibrate(100);
     
     verifyToken(token);
 }
@@ -208,8 +269,8 @@ function onScanSuccess(decodedText, decodedResult) {
 async function verifyToken(token) {
     if(!token) return;
     
-    if(html5QrCode) {
-        html5QrCode.stop().catch(err => console.error(err));
+    if(html5QrCode && html5QrCode.isScanning) {
+        await html5QrCode.stop().catch(err => console.error(err));
     }
     
     try {
@@ -228,7 +289,7 @@ async function verifyToken(token) {
         addToHistory(data);
         
     } catch (error) {
-        alert('Terjadi kesalahan koneksi');
+        alert('Terjadi kesalahan koneksi. Silakan coba lagi.');
         resetScanner();
     }
 }
@@ -240,46 +301,83 @@ function showResult(data) {
     const resMsg = document.getElementById('resMsg');
     
     resDiv.style.display = 'block';
-    resDiv.className = 'used'; // default
+    document.getElementById('manualInput').style.display = 'none';
     
     if (data.status === 'valid') {
         resDiv.className = 'valid';
         resIcon.textContent = '✅';
         resTitle.textContent = 'TIKET VALID';
-        resMsg.textContent = 'Silakan masuk!';
+        resTitle.style.color = 'var(--success)';
+        resMsg.textContent = 'Data terverifikasi. Silakan izinkan masuk.';
         document.getElementById('resName').textContent = data.attendee.name;
         document.getElementById('resInst').textContent = data.attendee.institution || '-';
     } else if (data.status === 'used') {
         resDiv.className = 'used';
         resIcon.textContent = '⚠️';
         resTitle.textContent = 'SUDAH DIGUNAKAN';
-        resMsg.textContent = `Scanned at: ${data.used_at}`;
-        document.getElementById('resName').textContent = data.attendee || '-';
+        resTitle.style.color = 'var(--warning)';
+        resMsg.textContent = `Pernah di-scan pada: ${data.used_at}`;
+        document.getElementById('resName').textContent = data.attendee.name || data.attendee;
+        document.getElementById('resInst').textContent = data.attendee.institution || '-';
     } else {
         resDiv.className = 'invalid';
         resIcon.textContent = '❌';
         resTitle.textContent = 'TIDAK VALID';
-        resMsg.textContent = data.message;
+        resTitle.style.color = 'var(--error)';
+        resMsg.textContent = data.message || 'Token tidak terdaftar dalam sistem.';
+        document.getElementById('resName').textContent = '-';
+        document.getElementById('resInst').textContent = '-';
     }
 }
 
 function resetScanner() {
     document.getElementById('result').style.display = 'none';
-    document.getElementById('manualInput').style.display = 'none';
+    document.getElementById('tokenInput').value = '';
     startScanner();
 }
 
-function startScanner() {
-    html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+async function startScanner() {
+    if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+    }
+    
+    const camerasFound = await Html5Qrcode.getCameras();
+    if (camerasFound && camerasFound.length > 0) {
+        cameras = camerasFound;
+        // Default to back camera
+        const backCam = cameras.find(c => c.label.toLowerCase().includes('back')) || cameras[cameras.length - 1];
+        currentCameraId = backCam.id;
+        
+        html5QrCode.start(currentCameraId, config, onScanSuccess)
+            .catch(err => {
+                console.error("Camera start error:", err);
+                // Fallback to simpler start
+                html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+            });
+    } else {
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+    }
 }
+
+document.getElementById('switchCamBtn').addEventListener('click', async () => {
+    if (cameras.length < 2) return;
+    
+    if (html5QrCode && html5QrCode.isScanning) {
+        await html5QrCode.stop();
+        const currentIndex = cameras.findIndex(c => c.id === currentCameraId);
+        const nextIndex = (currentIndex + 1) % cameras.length;
+        currentCameraId = cameras[nextIndex].id;
+        html5QrCode.start(currentCameraId, config, onScanSuccess);
+    }
+});
 
 function updateStats() {
     fetch('{{ route("scanner.stats") }}')
         .then(r => r.json())
         .then(data => {
             document.getElementById('checkCount').textContent = data.total_checked_in;
-        });
+        })
+        .catch(e => console.error("Stats update error:", e));
 }
 
 function addToHistory(data) {
@@ -287,11 +385,17 @@ function addToHistory(data) {
     const item = document.createElement('div');
     item.className = 'history-item';
     
-    const name = data.attendee ? (data.attendee.name || data.attendee) : 'Tiket Tidak Valid';
-    const status = data.success ? '✅' : '❌';
+    let name = '-';
+    if (data.attendee) {
+        name = typeof data.attendee === 'string' ? data.attendee : data.attendee.name;
+    } else if (data.status === 'invalid') {
+        name = 'Token Tidak Valid';
+    }
+    
+    const status = data.status === 'valid' ? '✅' : (data.status === 'used' ? '⚠️' : '❌');
     
     item.innerHTML = `
-        <span>${name}</span>
+        <span style="font-weight:600;">${name}</span>
         <span>${status}</span>
     `;
     
@@ -300,8 +404,19 @@ function addToHistory(data) {
 }
 
 document.getElementById('inputBtn').addEventListener('click', () => {
-    document.getElementById('manualInput').style.display = 'block';
-    if(html5QrCode) html5QrCode.stop();
+    const manualInput = document.getElementById('manualInput');
+    const result = document.getElementById('result');
+    
+    if (manualInput.style.display === 'block') {
+        manualInput.style.display = 'none';
+        startScanner();
+    } else {
+        manualInput.style.display = 'block';
+        result.style.display = 'none';
+        if(html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop();
+        }
+    }
 });
 
 // Start initially

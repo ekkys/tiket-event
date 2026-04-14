@@ -21,6 +21,12 @@ class RegistrationController extends Controller
             return view('registration.closed');
         }
 
+        // Cek apakah pendaftaran dibuka/ditutup berdasarkan tanggal
+        if (!$event->isBookingOpen()) {
+            return redirect()->route('events.show', $event->id)
+                ->with('error', 'Pendaftaran untuk event ini sedang ditutup (cek jadwal buka/tutup).');
+        }
+
         if (!$event->isQuotaAvailable()) {
             return view('registration.full', compact('event'));
         }
@@ -39,17 +45,27 @@ class RegistrationController extends Controller
         RateLimiter::hit($key, 600);
 
         $validated = $request->validate([
-            'event_id'    => 'required|exists:events,id',
-            'full_name'   => 'required|string|max:100',
-            'email'       => 'required|email|max:150',
-            'phone'       => 'required|string|max:20|regex:/^[0-9+\-\s]+$/',
-            'id_number'   => 'nullable|string|max:20',
-            'gender'      => 'nullable|in:male,female',
-            'institution' => 'nullable|string|max:100',
-            'address'     => 'nullable|string|max:300',
+            'event_id'       => 'required|exists:events,id',
+            'full_name'      => 'required|string|max:100',
+            'email'          => 'required|email|max:150',
+            'phone'          => 'required|string|max:20|regex:/^[0-9+\-\s]+$/',
+            'id_number'      => 'nullable|string|max:20',
+            'gender'         => 'nullable|in:male,female',
+            'institution'    => 'nullable|string|max:100',
+            'address'        => 'nullable|string|max:300',
+            'terms_accepted' => 'required|accepted', // Validasi centang S&K
+        ], [
+            'terms_accepted.required' => 'Anda harus menyetujui Syarat & Ketentuan untuk mendaftar.',
+            'terms_accepted.accepted' => 'Anda harus menyetujui Syarat & Ketentuan untuk mendaftar.',
         ]);
 
         $event = Event::findOrFail($validated['event_id']);
+
+        // Cek ulang booking window saat submit
+        if (!$event->isBookingOpen()) {
+            return redirect()->route('events.show', $event->id)
+                ->with('error', 'Maaf, waktu pendaftaran sudah berakhir.');
+        }
 
         // Atomic check quota + insert menggunakan DB transaction
         return DB::transaction(function () use ($validated, $event, $request) {

@@ -7,34 +7,57 @@
     <title>Tiket - {{ $ticket->registration->full_name }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #5C3BFE;
+            --primary-dark: #4A2ED4;
+            --accent: #8B5CF6;
+            --bg-dark: #0F0A2A;
+            --surface: #FFFFFF;
+            --text-dark: #1A1033;
+            --text-muted: #7B7A8E;
+            --success: #10B981;
+            --warning: #F59E0B;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #0F0A2A;
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(92, 59, 254, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 20%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px 16px;
+            padding: 40px 16px;
+            color: white;
         }
 
         .ticket-wrapper {
-            max-width: 420px;
+            max-width: 440px;
             width: 100%;
+            animation: slideUp 0.6s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .ticket {
-            background: white;
-            border-radius: 28px;
+            background: var(--surface);
+            border-radius: 40px;
             overflow: hidden;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.6);
+            color: var(--text-dark);
         }
 
         .ticket-header {
-            background: linear-gradient(135deg, #5C3BFE 0%, #8B5CF6 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             color: white;
-            padding: 32px 28px;
+            padding: 40px 32px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -43,201 +66,236 @@
         .ticket-header::before {
             content: '';
             position: absolute;
-            top: -40px; right: -40px;
-            width: 140px; height: 140px;
+            top: -50px; right: -50px;
+            width: 160px; height: 160px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.08);
-        }
-
-        .ticket-header::after {
-            content: '';
-            position: absolute;
-            bottom: -30px; left: -20px;
-            width: 100px; height: 100px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.1);
         }
 
         .ticket-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            opacity: 0.7;
-            margin-bottom: 8px;
+            opacity: 0.8;
+            margin-bottom: 12px;
+            display: block;
         }
 
         .event-name {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 800;
             line-height: 1.2;
-            position: relative;
-            z-index: 1;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
         }
 
         .event-meta {
-            margin-top: 12px;
-            font-size: 13px;
-            opacity: 0.85;
-            position: relative;
-            z-index: 1;
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         /* Notched divider */
         .ticket-divider {
             display: flex;
             align-items: center;
-            background: white;
+            background: var(--surface);
             position: relative;
+            margin: -1px 0;
         }
 
         .notch {
-            width: 28px; height: 28px;
+            width: 40px; height: 40px;
             border-radius: 50%;
-            background: #0F0A2A;
+            background: var(--bg-dark);
             flex-shrink: 0;
         }
 
+        .notch-left { margin-left: -20px; }
+        .notch-right { margin-right: -20px; }
+
         .perforation {
             flex: 1;
-            height: 2px;
-            border-top: 2px dashed #E2DEF9;
-            margin: 0 4px;
+            height: 0;
+            border-top: 3px dashed #E2DEF9;
+            margin: 0 10px;
+            opacity: 0.5;
         }
 
         .ticket-body {
-            padding: 28px;
+            padding: 32px;
+        }
+
+        .attendee-info {
+            text-align: center;
+            margin-bottom: 32px;
         }
 
         .attendee-name {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #1A1033;
-            margin-bottom: 4px;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
         }
 
         .attendee-sub {
-            font-size: 13px;
-            color: #7B7A8E;
-            margin-bottom: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         .detail-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 16px;
+            margin-bottom: 32px;
         }
 
         .detail-item {
-            background: #F4F2FF;
-            border-radius: 12px;
-            padding: 12px;
+            background: #F7F6FF;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #EEECFF;
         }
 
         .detail-key {
             font-size: 11px;
-            font-weight: 700;
-            color: #7B7A8E;
+            font-weight: 800;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .detail-val {
-            font-size: 14px;
-            font-weight: 700;
-            color: #1A1033;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-dark);
         }
 
         /* QR Code section */
         .qr-section {
-            background: #F9F8FF;
-            border: 2px dashed #C4B8F8;
-            border-radius: 20px;
-            padding: 24px;
+            background: #FFFFFF;
+            border: 2px dashed #DED8FF;
+            border-radius: 28px;
+            padding: 32px 24px;
             text-align: center;
+            transition: 0.3s;
         }
 
         .qr-section img {
             width: 200px;
             height: 200px;
-            border-radius: 12px;
+            border-radius: 16px;
+            margin-bottom: 16px;
         }
 
         .qr-hint {
-            font-size: 12px;
-            color: #7B7A8E;
-            margin-top: 12px;
-            font-weight: 500;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 8px;
         }
 
         .ticket-code {
-            font-family: monospace;
-            font-size: 13px;
-            font-weight: 700;
-            color: #5C3BFE;
-            letter-spacing: 1px;
-            margin-top: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 2px;
+            background: #EFECFF;
+            padding: 6px 16px;
+            border-radius: 100px;
+            display: inline-block;
         }
 
         .status-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             background: #D1FAE5;
             color: #065F46;
             border-radius: 100px;
-            padding: 6px 14px;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 20px;
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 24px;
         }
 
         /* Action buttons */
         .actions {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            margin-top: 32px;
+            display: grid;
+            gap: 12px;
         }
 
         .btn {
-            padding: 14px;
-            border-radius: 12px;
+            padding: 18px;
+            border-radius: 20px;
             border: none;
             font-family: inherit;
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 15px;
+            font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             text-decoration: none;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #5C3BFE, #8B5CF6);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
-            box-shadow: 0 6px 20px rgba(92,59,254,0.3);
+            box-shadow: 0 10px 25px rgba(92,59,254,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(92,59,254,0.4);
         }
 
         .btn-secondary {
             background: #F4F2FF;
-            color: #5C3BFE;
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: #EEECFF;
+            transform: translateY(-2px);
         }
 
         .warning-used {
-            background: #FFF3CD;
-            border: 1px solid #FFEAA7;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 13px;
-            color: #856404;
-            font-weight: 600;
+            background: #FEF3C7;
+            border: 1px solid #FCD34D;
+            border-radius: 20px;
+            padding: 16px;
+            font-size: 14px;
+            color: #92400E;
+            font-weight: 700;
             text-align: center;
-            margin-top: 12px;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .ticket { box-shadow: none; border: 1px solid #eee; }
+            .actions, .footer-note { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .ticket-header { padding: 32px 24px; }
+            .event-name { font-size: 1.5rem; }
+            .ticket-body { padding: 24px; }
+            .attendee-name { font-size: 1.3rem; }
+            .detail-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -245,54 +303,55 @@
 <div class="ticket-wrapper">
     <div class="ticket">
         <div class="ticket-header">
-            <div class="ticket-label">✨ E-Ticket</div>
-            <div class="event-name">{{ $ticket->registration->event->name }}</div>
+            <span class="ticket-label">E-Ticket Resmi</span>
+            <h1 class="event-name">{{ $ticket->registration->event->name }}</h1>
             <div class="event-meta">
-                📅 {{ $ticket->registration->event->event_date->isoFormat('dddd, D MMMM Y') }}
+                <span>📅 {{ $ticket->registration->event->event_date->isoFormat('dddd, D MMMM Y') }}</span>
                 @if($ticket->registration->event->location)
-                    <br>📍 {{ $ticket->registration->event->location }}
+                    <span>📍 {{ $ticket->registration->event->location }}</span>
                 @endif
             </div>
         </div>
 
         <div class="ticket-divider">
-            <div class="notch"></div>
+            <div class="notch notch-left"></div>
             <div class="perforation"></div>
-            <div class="notch"></div>
+            <div class="notch notch-right"></div>
         </div>
 
         <div class="ticket-body">
-            <div class="status-badge">
-                ✅ Tiket Valid
-            </div>
-
-            <div class="attendee-name">{{ $ticket->registration->full_name }}</div>
-            <div class="attendee-sub">
-                {{ $ticket->registration->email }}
-                @if($ticket->registration->institution)
-                    · {{ $ticket->registration->institution }}
-                @endif
+            <div class="attendee-info">
+                <div class="status-badge">
+                    ✅ Tiket Aktif & Valid
+                </div>
+                <h2 class="attendee-name">{{ $ticket->registration->full_name }}</h2>
+                <div class="attendee-sub">
+                    {{ $ticket->registration->email }}
+                    @if($ticket->registration->institution)
+                        · {{ $ticket->registration->institution }}
+                    @endif
+                </div>
             </div>
 
             <div class="detail-grid">
                 <div class="detail-item">
-                    <div class="detail-key">No. Tiket</div>
+                    <div class="detail-key">Kode Registrasi</div>
                     <div class="detail-val">{{ $ticket->registration->registration_code }}</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-key">Status Bayar</div>
+                    <div class="detail-key">Status Pembayaran</div>
                     <div class="detail-val">
                         {{ $ticket->registration->payment_status === 'free' ? '🎁 Gratis' : '✅ Lunas' }}
                     </div>
                 </div>
                 @if($ticket->registration->amount_paid > 0)
                 <div class="detail-item">
-                    <div class="detail-key">Dibayar</div>
+                    <div class="detail-key">Total Bayar</div>
                     <div class="detail-val">{{ $ticket->registration->formatted_amount }}</div>
                 </div>
                 @endif
                 <div class="detail-item">
-                    <div class="detail-key">Phone</div>
+                    <div class="detail-key">No. Telepon</div>
                     <div class="detail-val">{{ $ticket->registration->phone }}</div>
                 </div>
             </div>
@@ -301,35 +360,44 @@
                 @if($ticket->qr_code_path)
                     <img src="{{ Storage::url($ticket->qr_code_path) }}" alt="QR Code Tiket">
                 @else
-                    <div style="width:200px;height:200px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:12px;margin:0 auto;">
-                        <span style="font-size:3rem;">⏳</span>
+                    <div style="width:200px;height:200px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;border-radius:20px;margin:0 auto 16px;">
+                        <span style="font-size:3rem; animation: pulse 1.5s infinite;">⏳</span>
                     </div>
                 @endif
-                <div class="qr-hint">Tunjukkan QR code ini ke petugas saat masuk</div>
+                <p class="qr-hint">Scan QR code ini pada pintu masuk area event</p>
                 <div class="ticket-code">{{ $ticket->registration->registration_code }}</div>
 
                 @if($ticket->is_used)
                     <div class="warning-used">
-                        ⚠️ Tiket ini sudah digunakan pada<br>
-                        {{ $ticket->used_at?->isoFormat('dddd, D MMM Y [pukul] HH:mm') }}
+                        ⚠️ Tiket ini telah diverifikasi pada<br>
+                        <span style="font-size: 12px; opacity: 0.8;">{{ $ticket->used_at?->isoFormat('D MMM Y, HH:mm') }} WIB</span>
                     </div>
                 @endif
             </div>
 
             <div class="actions">
                 <a href="{{ route('ticket.download', $ticket->token) }}" class="btn btn-primary">
-                    📥 Download QR Code
+                    📥 Simpan QR ke Galeri
                 </a>
                 <button class="btn btn-secondary" onclick="window.print()">
-                    🖨️ Cetak / Simpan PDF
+                    🖨️ Cetak atau Simpan PDF
                 </button>
             </div>
         </div>
     </div>
 
-    <p style="color: rgba(255,255,255,0.4); font-size: 12px; text-align: center; margin-top: 16px;">
-        Screenshot atau cetak tiket ini sebagai backup
+    <p class="footer-note" style="color: rgba(255,255,255,0.4); font-size: 13px; text-align: center; margin-top: 24px; font-weight: 500;">
+        Simpan screenshot tiket ini untuk akses lebih cepat
     </p>
 </div>
+
+<style>
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.5; }
+}
+</style>
+
 </body>
 </html>

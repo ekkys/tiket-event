@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Cache;
 class Event extends Model
 {
     protected $fillable = [
-        'name', 'description', 'location', 'event_date',
+        'name', 'description', 'highlights', 'location', 'event_date',
+        'booking_starts_at', 'booking_ends_at', 'terms_and_conditions',
         'price', 'is_free', 'quota', 'registered_count', 'is_active', 'image_path', 'user_id'
     ];
 
@@ -18,10 +19,12 @@ class Event extends Model
     }
 
     protected $casts = [
-        'event_date' => 'datetime',
-        'is_free'    => 'boolean',
-        'is_active'  => 'boolean',
-        'price'      => 'decimal:2',
+        'event_date'        => 'datetime',
+        'booking_starts_at' => 'datetime',
+        'booking_ends_at'   => 'datetime',
+        'is_free'           => 'boolean',
+        'is_active'         => 'boolean',
+        'price'             => 'decimal:2',
     ];
 
     public function registrations()
@@ -32,6 +35,33 @@ class Event extends Model
     public function isQuotaAvailable(): bool
     {
         return $this->registered_count < $this->quota;
+    }
+
+    public function isBookingOpen(): bool
+    {
+        $now = now();
+        
+        if ($this->booking_starts_at && $now->lt($this->booking_starts_at)) {
+            return false;
+        }
+
+        if ($this->booking_ends_at && $now->gt($this->booking_ends_at)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getBookingStatus(): string
+    {
+        $now = now();
+
+        if (!$this->is_active) return 'Nonaktif';
+        if ($this->booking_starts_at && $now->lt($this->booking_starts_at)) return 'Belum Buka';
+        if ($this->booking_ends_at && $now->gt($this->booking_ends_at)) return 'Sudah Tutup';
+        if (!$this->isQuotaAvailable()) return 'Kuota Penuh';
+
+        return 'Buka';
     }
 
     public function getRemainingQuota(): int

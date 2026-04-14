@@ -23,4 +23,14 @@ class EventController extends Controller
         $events = $query->latest()->get();
         return view('events.index', compact('events'));
     }
+
+    public function show(Event $event)
+    {
+        $event->load('user');
+        if (!$event->is_active) {
+            abort(404);
+        }
+
+        return view('events.show', compact('event'));
+    }
 }

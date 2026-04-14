@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 // ---- Public Event Listing ----
 Route::get('/', [EventController::class , 'index'])->name('home');
+Route::get('/event/{event}', [EventController::class , 'show'])->name('events.show');
 
 // ---- Registrasi ----
 Route::get('/daftar', [RegistrationController::class , 'showForm'])->name('registration.form');
@@ -44,18 +45,43 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// ---- Forgot Password ----
+Route::get('/forgot-password', [App\Http\Controllers\PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [App\Http\Controllers\PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [App\Http\Controllers\PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [App\Http\Controllers\PasswordResetController::class, 'reset'])->name('password.update');
+
+// ---- Email Verification ----
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect()->route('admin.dashboard');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Illuminate\Http\Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('message', 'Link verifikasi baru telah dikirim!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
 // ---- Admin (dilindungi auth) ----
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [AdminController::class , 'dashboard'])->name('dashboard');
     Route::get('/registrations', [AdminController::class , 'registrations'])->name('registrations');
     Route::get('/export', [AdminController::class , 'export'])->name('export');
     Route::get('/scan-logs', [AdminController::class , 'scanLogs'])->name('scan-logs');
+    Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
+    Route::put('/profile/password', [AdminController::class, 'updatePassword'])->name('profile.password.update');
 
     // Event Management
     Route::get('/events', [AdminController::class , 'events'])->name('events');
     Route::get('/events/create', [AdminController::class , 'createEvent'])->name('events.create');
     Route::post('/events', [AdminController::class , 'storeEvent'])->name('events.store');
+    Route::get('/events/{event}', [AdminController::class , 'showEvent'])->name('events.show');
     Route::get('/events/{event}/edit', [AdminController::class , 'editEvent'])->name('events.edit');
     Route::put('/events/{event}', [AdminController::class , 'updateEvent'])->name('events.update');
     Route::delete('/events/{event}', [AdminController::class , 'deleteEvent'])->name('events.delete');
+    Route::get('/events/{event}/flyer', [AdminController::class , 'downloadFlyer'])->name('events.flyer');
 });

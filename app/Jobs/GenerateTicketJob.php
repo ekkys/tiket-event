@@ -75,10 +75,6 @@ class GenerateTicketJob implements ShouldQueue
         // Update status registration
         $this->registration->update(['ticket_generated' => true]);
 
-        // Kirim email tiket
-        Mail::to($this->registration->email)
-            ->queue(new TicketMail($this->registration, $ticket));
-
         Log::info('Ticket generated', [
             'registration_id' => $this->registration->id,
             'token'           => $token,

@@ -3,7 +3,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Daftar - {{ $event->name }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
         .hero {
             background: linear-gradient(135deg, var(--primary) 0%, #8B5CF6 100%);
             color: white;
-            padding: 48px 24px 80px;
+            padding: 60px 24px 100px;
             text-align: center;
         }
 
@@ -43,23 +43,25 @@
             border-radius: 100px;
             padding: 6px 16px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.5px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
         }
 
-        .hero h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; line-height: 1.2; }
-        .hero p  { margin-top: 12px; opacity: 0.85; font-size: 1rem; }
+        .hero h1 { font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; line-height: 1.1; letter-spacing: -1px; }
+        .hero p  { margin-top: 16px; opacity: 0.9; font-size: 1.1rem; font-weight: 500; }
 
         .quota-bar {
             max-width: 480px;
-            margin: 20px auto 0;
+            margin: 24px auto 0;
         }
 
         .quota-track {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 100px;
-            height: 8px;
+            height: 10px;
             overflow: hidden;
         }
 
@@ -68,148 +70,171 @@
             background: #FFD60A;
             border-radius: 100px;
             width: {{ ($event->registered_count / $event->quota) * 100 }}%;
-            transition: width 1s ease;
+            transition: width 1s cubic-bezier(0.1, 0.7, 0.1, 1);
         }
 
         .quota-label {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-top: 8px;
         }
 
         .container {
-            max-width: 600px;
-            margin: -40px auto 48px;
+            max-width: 640px;
+            margin: -60px auto 48px;
             padding: 0 16px;
         }
 
         .card {
             background: var(--card);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(92,59,254,0.12);
-            padding: 36px 32px;
-        }
-
-        @media (max-width: 480px) {
-            .card { padding: 24px 20px; }
+            border-radius: 32px;
+            box-shadow: 0 25px 70px rgba(92,59,254,0.15);
+            padding: 48px;
         }
 
         .card-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 24px;
-            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 32px;
+            color: var(--text);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            letter-spacing: -0.5px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         label {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 700;
             color: var(--text);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         label .req { color: var(--error); margin-left: 2px; }
 
         input, select, textarea {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 18px;
             border: 2px solid var(--border);
-            border-radius: 12px;
+            border-radius: 16px;
             font-family: inherit;
-            font-size: 15px;
+            font-size: 16px;
             color: var(--text);
-            background: white;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #F9F8FF;
+            transition: all 0.2s;
             outline: none;
         }
 
         input:focus, select:focus, textarea:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(92,59,254,0.1);
+            background: white;
+            box-shadow: 0 0 0 5px rgba(92,59,254,0.1);
         }
 
-        input.error, select.error { border-color: var(--error); }
+        input.error, select.error { border-color: var(--error); background: #FFF9F9; }
 
         .error-msg {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--error);
-            margin-top: 4px;
-            font-weight: 500;
+            margin-top: 6px;
+            font-weight: 600;
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 20px;
         }
 
-        @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
-
         .price-box {
-            background: linear-gradient(135deg, #F4F2FF, #EDE9FF);
+            background: linear-gradient(135deg, #F8F7FF, #F2F0FF);
             border: 2px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 32px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .price-label { font-size: 13px; color: var(--muted); font-weight: 600; }
-        .price-amount { font-size: 1.6rem; font-weight: 800; color: var(--primary); }
-        .price-free { font-size: 1.4rem; font-weight: 800; color: var(--success); }
+        .price-label { font-size: 14px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .price-amount { font-size: 2rem; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+        .price-free { font-size: 1.75rem; font-weight: 900; color: var(--success); letter-spacing: -1px; }
 
         .btn-submit {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            padding: 20px;
+            background: linear-gradient(45deg, var(--primary), #8B5CF6);
             color: white;
             border: none;
-            border-radius: 14px;
+            border-radius: 20px;
             font-family: inherit;
-            font-size: 16px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 800;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 8px 24px rgba(92,59,254,0.35);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(92,59,254,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 12px;
         }
 
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(92,59,254,0.45); }
-        .btn-submit:active { transform: translateY(0); }
+        .btn-submit:hover { transform: translateY(-4px); box-shadow: 0 15px 40px rgba(92,59,254,0.4); }
+        .btn-submit:active { transform: translateY(-1px); }
         .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
+        @media (max-width: 640px) {
+            .hero { padding: 48px 20px 80px; }
+            .container { margin-top: -50px; }
+            .card { padding: 32px 24px; border-radius: 24px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .price-amount { font-size: 1.75rem; }
+            .btn-submit { font-size: 16px; padding: 18px; }
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 24px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.8; }
+
         .info-note {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--muted);
             text-align: center;
-            margin-top: 16px;
+            margin-top: 24px;
             line-height: 1.6;
+            font-weight: 500;
         }
 
         .alert-error {
             background: #FFF0F0;
-            border: 1px solid #FFD4D4;
-            border-radius: 12px;
-            padding: 12px 16px;
+            border: 2px solid #FFDCDC;
+            border-radius: 16px;
+            padding: 16px;
             color: var(--error);
             font-size: 14px;
-            margin-bottom: 20px;
-            font-weight: 500;
+            margin-bottom: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
     </style>
 </head>
@@ -233,11 +258,9 @@
 
 <div class="container">
     <div class="card">
-        <div style="margin-bottom: 24px;">
-            <a href="{{ route('home') }}" style="color: var(--primary); font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 4px;">
-                ⬅️ Kembali ke Daftar Event
-            </a>
-        </div>
+        <a href="{{ route('home') }}" class="back-link">
+            ← Kembali ke Daftar Event
+        </a>
 
         <div class="card-title">📝 Form Pendaftaran</div>
 
@@ -258,7 +281,7 @@
                         <div class="price-amount">Rp {{ number_format($event->price, 0, ',', '.') }}</div>
                     @endif
                 </div>
-                <div style="font-size: 2rem;">🎟️</div>
+                <div style="font-size: 2.5rem;">🎟️</div>
             </div>
 
             <div class="form-group">
@@ -291,7 +314,7 @@
                     <label>NIK / No. KTP</label>
                     <input type="text" name="id_number" id="nikInput" value="{{ old('id_number') }}"
                         placeholder="16 digit NIK (opsional)" maxlength="16">
-                    <div id="nikFeedback" style="font-size: 11px; margin-top: 4px; font-weight: 600;"></div>
+                    <div id="nikFeedback" style="font-size: 11px; margin-top: 6px; font-weight: 700;"></div>
                 </div>
                 <div class="form-group">
                     <label>Jenis Kelamin</label>
@@ -315,15 +338,32 @@
                     placeholder="Alamat lengkap (opsional)">{{ old('address') }}</textarea>
             </div>
 
+            @if($event->terms_and_conditions)
+            <div class="form-group" style="background: #F8F7FF; padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 24px;">
+                <label style="color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">📜 Syarat & Ketentuan</label>
+                <div style="font-size: 12px; max-height: 120px; overflow-y: auto; color: var(--muted); line-height: 1.6; white-space: pre-line; padding-right: 8px;">
+                    {{ $event->terms_and_conditions }}
+                </div>
+            </div>
+            @endif
+
+            <div class="form-group" style="margin-bottom: 32px;">
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 600; line-height: 1.5; color: var(--muted);">
+                    <input type="checkbox" name="terms_accepted" value="1" required style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--primary);">
+                    <span>Saya setuju dengan <strong style="color: var(--text);">Syarat & Ketentuan</strong> yang berlaku untuk event ini. <span class="req">*</span></span>
+                </label>
+                @error('terms_accepted')<div class="error-msg">{{ $message }}</div>@enderror
+            </div>
+
             <button type="submit" class="btn-submit" id="submitBtn">
                 <span id="btnText">
-                    @if($event->is_free) 🎁 Daftar Gratis @else 💳 Lanjut ke Pembayaran @endif
+                    @if($event->is_free) 🎁 Daftar Sekarang @else 💳 Lanjut Pembayaran @endif
                 </span>
             </button>
 
             <p class="info-note">
-                🔒 Data Anda aman dan tidak akan disebarkan.<br>
-                Tiket akan dikirim ke email setelah pendaftaran berhasil.
+                🔒 Keamanan Data Terjamin<br>
+                Tiket resmi akan dikirim ke email segera setelah pendaftaran.
             </p>
         </form>
     </div>
@@ -346,10 +386,10 @@ nikInput.addEventListener('input', function() {
     if (val.length === 0) {
         nikFeedback.textContent = '';
     } else if (val.length < 16) {
-        nikFeedback.textContent = '❌ kurang dari 16 digit';
+        nikFeedback.textContent = '❌ Kurang dari 16 digit';
         nikFeedback.style.color = '#EF4444';
     } else {
-        nikFeedback.textContent = '✅ sesuai 16 digit';
+        nikFeedback.textContent = '✅ Format Sesuai (16 digit)';
         nikFeedback.style.color = '#10B981';
     }
     
