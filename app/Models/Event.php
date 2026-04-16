@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Cache;
 class Event extends Model
 {
     protected $fillable = [
-        'name', 'description', 'highlights', 'location', 'event_date',
+        'name', 'description', 'highlights', 'location', 'location_name', 'location_link', 'event_date',
         'booking_starts_at', 'booking_ends_at', 'terms_and_conditions',
         'price', 'is_free', 'quota', 'registered_count', 'is_active', 'image_path', 'user_id'
     ];

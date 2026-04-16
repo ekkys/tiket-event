@@ -329,7 +329,15 @@
         <h1>{{ $event->name }}</h1>
         <p>
             📅 {{ $event->event_date->isoFormat('dddd, D MMMM Y') }}
-            @if($event->location) &nbsp;·&nbsp; 📍 {{ $event->location }}
+            @if($event->location_name || $event->location)
+                &nbsp;·&nbsp; 📍 
+                @if($event->location_link)
+                    <a href="{{ $event->location_link }}" target="_blank" style="color: inherit; text-decoration: underline;">
+                        {{ $event->location_name ?: $event->location }}
+                    </a>
+                @else
+                    {{ $event->location_name ?: $event->location }}
+                @endif
             @endif
         </p>
         <div class="quota-bar">

@@ -124,9 +124,15 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Lokasi / Link Online</label>
-                <input type="text" name="location" placeholder="Gedung Serbaguna atau Link Zoom">
+            <div class="row">
+                <div class="form-group">
+                    <label>Nama Lokasi</label>
+                    <input type="text" name="location_name" placeholder="Contoh: Gedung Serbaguna">
+                </div>
+                <div class="form-group">
+                    <label>Link Lokasi (Google Maps / Zoom)</label>
+                    <input type="url" name="location_link" placeholder="Contoh: https://maps.google.com/...">
+                </div>
             </div>
 
             <div class="row">

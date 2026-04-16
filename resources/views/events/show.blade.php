@@ -438,7 +438,14 @@
                 <div class="event-meta">
                     <div class="meta-item">📅 {{ $event->event_date->isoFormat('dddd, D MMMM Y') }}</div>
                     <div class="meta-item">⏰ {{ $event->event_date->format('H:i') }} WIB</div>
-                    <div class="meta-item">📍 {{ $event->location ?? 'Online / Lokasi Belum Ditentukan' }}</div>
+                    <div class="meta-item">
+                        📍 
+                        @if($event->location_link)
+                            <a href="{{ $event->location_link }}" target="_blank" style="color: inherit; text-decoration: underline;">{{ $event->location_name ?: ($event->location ?? 'Lokasi') }}</a>
+                        @else
+                            {{ $event->location_name ?: ($event->location ?? 'Online / Lokasi Belum Ditentukan') }}
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

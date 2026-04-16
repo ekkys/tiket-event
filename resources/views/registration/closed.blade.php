@@ -73,6 +73,18 @@
         <p>
             Mohon maaf, pendaftaran untuk <strong>{{ $event->name }}</strong> saat ini sudah ditutup.
             <br><br>
+            📅 {{ $event->event_date->isoFormat('dddd, D MMMM Y') }}
+            @if($event->location_name || $event->location)
+                <br>📍 
+                @if($event->location_link)
+                    <a href="{{ $event->location_link }}" target="_blank" style="color: inherit; text-decoration: underline;">
+                        {{ $event->location_name ?: $event->location }}
+                    </a>
+                @else
+                    {{ $event->location_name ?: $event->location }}
+                @endif
+            @endif
+            <br><br>
             Silakan pantau kembali informasi terbaru dari kami.
         </p>
         <a href="/" class="btn">Kembali ke Beranda</a>

@@ -140,9 +140,15 @@
                 <p style="font-size: 11px; color: var(--muted); margin-top: 4px;">Isi ini HANYA jika ingin mengubah total kuota secara langsung.</p>
             </div>
 
-            <div class="form-group">
-                <label>Lokasi / Link Online</label>
-                <input type="text" name="location" value="{{ $event->location }}">
+            <div class="row">
+                <div class="form-group">
+                    <label>Nama Lokasi</label>
+                    <input type="text" name="location_name" value="{{ $event->location_name ?: $event->location }}">
+                </div>
+                <div class="form-group">
+                    <label>Link Lokasi (Google Maps / Zoom)</label>
+                    <input type="url" name="location_link" value="{{ $event->location_link }}">
+                </div>
             </div>
 
             <div class="row">

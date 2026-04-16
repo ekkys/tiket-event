@@ -326,8 +326,17 @@
             <h1 class="event-name">{{ $ticket->registration->event->name }}</h1>
             <div class="event-meta">
                 <span>📅 {{ $ticket->registration->event->event_date->isoFormat('dddd, D MMMM Y') }}</span>
-                @if($ticket->registration->event->location)
-                    <span>📍 {{ $ticket->registration->event->location }}</span>
+                @if($ticket->registration->event->location_name || $ticket->registration->event->location)
+                    <span>
+                        📍 
+                        @if($ticket->registration->event->location_link)
+                            <a href="{{ $ticket->registration->event->location_link }}" target="_blank" style="color: inherit; text-decoration: underline;">
+                                {{ $ticket->registration->event->location_name ?: $ticket->registration->event->location }}
+                            </a>
+                        @else
+                            {{ $ticket->registration->event->location_name ?: $ticket->registration->event->location }}
+                        @endif
+                    </span>
                 @endif
             </div>
         </div>

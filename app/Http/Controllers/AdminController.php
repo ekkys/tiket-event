@@ -133,6 +133,8 @@ class AdminController extends Controller
             'booking_starts_at'   => 'nullable|date',
             'booking_ends_at'     => 'nullable|date',
             'location'            => 'nullable|string|max:255',
+            'location_name'       => 'nullable|string|max:255',
+            'location_link'       => 'nullable|string|max:2000',
             'price'               => 'required|numeric|min:0',
             'quota'               => 'required|integer|min:1',
             'description'         => 'nullable|string',
@@ -192,6 +194,8 @@ class AdminController extends Controller
             'booking_starts_at'   => 'nullable|date',
             'booking_ends_at'     => 'nullable|date',
             'location'            => 'nullable|string|max:255',
+            'location_name'       => 'nullable|string|max:255',
+            'location_link'       => 'nullable|string|max:2000',
             'price'               => 'required|numeric|min:0',
             'description'         => 'nullable|string',
             'highlights'          => 'nullable|string',
@@ -294,7 +298,8 @@ class AdminController extends Controller
         $currentY += 60;
         imagettftext($flyer, 14, 0, 60, $currentY, $muted, $fontBold, "LOKASI");
         $currentY += 35;
-        $locLines = explode("\n", wordwrap($event->location ?? '-', 35, "\n"));
+        $locLabel = $event->location_name ?: ($event->location ?? '-');
+        $locLines = explode("\n", wordwrap($locLabel, 35, "\n"));
         foreach($locLines as $line) {
             imagettftext($flyer, 18, 0, 60, $currentY, $black, $fontBold, $line);
             $currentY += 30;

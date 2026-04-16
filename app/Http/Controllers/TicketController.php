@@ -86,7 +86,8 @@ class TicketController extends Controller
 
         // Date & Location
         $eventDate = $ticket->registration->event->event_date->isoFormat('dddd, D MMMM Y');
-        imagettftext($image, 14, 0, 40, $currentY, $textMuted, $font, $eventDate);
+        $location = $ticket->registration->event->location_name ?: ($ticket->registration->event->location ?? '-');
+        imagettftext($image, 14, 0, 40, $currentY, $textMuted, $font, $eventDate . ' | ' . $location);
         $currentY += 80;
 
         // Attendee Name

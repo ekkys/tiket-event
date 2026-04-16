@@ -134,7 +134,12 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Lokasi</span>
-                <span class="info-value">{{ $event->location ?? '-' }}</span>
+                <span class="info-value">
+                    {{ $event->location_name ?: ($event->location ?? '-') }}
+                    @if($event->location_link)
+                        <br><a href="{{ $event->location_link }}" target="_blank" style="font-size: 11px; color: var(--primary);">🔗 Lihat Link</a>
+                    @endif
+                </span>
             </div>
             <div class="info-row" style="border:none;">
                 <span class="info-label">Harga</span>
