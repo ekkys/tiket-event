@@ -6,6 +6,8 @@ use App\Models\Event;
 use App\Models\Registration;
 use App\Models\Ticket;
 use App\Models\ScanLog;
+use App\Exports\RegistrationsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
@@ -65,41 +67,10 @@ class AdminController extends Controller
         return view('admin.registrations', compact('registrations'));
     }
 
-    public function export()
+    public function export(Request $request)
     {
-        $userId = auth()->id();
-        $registrations = Registration::whereHas('event', fn($q) => $q->where('user_id', $userId))
-            ->with(['ticket', 'event'])
-            ->whereIn('payment_status', ['paid', 'free'])
-            ->get();
-
-        $headers = [
-            'Content-Type'        => 'text/csv',
-            'Content-Disposition' => 'attachment; filename=registrations.csv',
-        ];
-
-        $callback = function () use ($registrations) {
-            $f = fopen('php://output', 'w');
-            fputcsv($f, ['No', 'Kode', 'Nama', 'Email', 'HP', 'NIK', 'Alamat', 'Institusi', 'Status', 'Sudah Scan', 'Tgl Daftar']);
-            foreach ($registrations as $i => $r) {
-                fputcsv($f, [
-                    $i + 1,
-                    $r->registration_code,
-                    $r->full_name,
-                    $r->email,
-                    $r->phone,
-                    $r->id_number,
-                    $r->address,
-                    $r->institution,
-                    $r->payment_status,
-                    $r->ticket?->is_used ? 'Ya' : 'Tidak',
-                    $r->created_at->format('d/m/Y H:i'),
-                ]);
-            }
-            fclose($f);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        $fileName = 'registrations-' . now()->format('Y-m-d-His') . '.xlsx';
+        return Excel::download(new RegistrationsExport($request->only(['search', 'status'])), $fileName);
     }
 
     public function scanLogs(Request $request)

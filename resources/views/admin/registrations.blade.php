@@ -354,7 +354,7 @@
     <div class="main-content">
         <div class="header">
             <h1>Peserta Terdaftar</h1>
-            <a href="{{ route('admin.export') }}" class="btn-export">📥 Export CSV</a>
+            <a href="{{ route('admin.export', request()->query()) }}" class="btn-export">📥 Export Excel</a>
         </div>
 
         <div class="card">
