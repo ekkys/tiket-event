@@ -316,11 +316,9 @@
 <body>
 <div class="ticket-wrapper">
     <div class="ticket">
-        @if($ticket->registration->event->image_path)
-            <div class="ticket-banner-print">
-                <img src="{{ Storage::url($ticket->registration->event->image_path) }}" alt="Banner Event">
-            </div>
-        @endif
+        <div class="ticket-banner-print">
+            <img src="{{ $ticket->registration->event->image_url }}" alt="Banner Event">
+        </div>
         <div class="ticket-header">
             <span class="ticket-label">E-Ticket Resmi</span>
             <h1 class="event-name">{{ $ticket->registration->event->name }}</h1>
@@ -385,13 +383,7 @@
             </div>
 
             <div class="qr-section">
-                @if($ticket->qr_code_path)
-                    <img src="{{ Storage::url($ticket->qr_code_path) }}" alt="QR Code Tiket">
-                @else
-                    <div style="width:200px;height:200px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;border-radius:20px;margin:0 auto 16px;">
-                        <span style="font-size:3rem; animation: pulse 1.5s infinite;">⏳</span>
-                    </div>
-                @endif
+                <img src="{{ $ticket->qr_url }}" alt="QR Code Tiket">
                 <p class="qr-hint">Scan QR code ini pada pintu masuk area event</p>
                 <div class="ticket-code">{{ $ticket->registration->registration_code }}</div>
 

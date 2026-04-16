@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class Event extends Model
 {
@@ -83,5 +84,13 @@ class Event extends Model
         self::where('id', $this->id)->increment('registered_count');
         Cache::forget('active_event');
         Cache::forget('event_stats_' . $this->id);
+    }
+
+    public function getImageUrlAttribute(): string
+    {
+        if ($this->image_path && Storage::disk('public')->exists($this->image_path)) {
+            return Storage::disk('public')->url($this->image_path);
+        }
+        return asset('images/placeholder-event.png');
     }
 }

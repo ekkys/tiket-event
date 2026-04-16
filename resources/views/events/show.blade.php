@@ -425,12 +425,8 @@
         @endif
 
         <div class="event-header">
-            @if($event->image_path)
-                <img src="{{ asset('storage/' . $event->image_path) }}" alt="{{ $event->name }}" class="event-banner"
-                    onclick="openModal()">
-            @else
-                <div class="event-banner-placeholder">{{ $event->name }}</div>
-            @endif
+            <img src="{{ $event->image_url }}" alt="{{ $event->name }}" class="event-banner"
+                onclick="openModal()">
 
             <div class="event-header-content">
                 <div class="event-date-badge">Tersisa {{ number_format($event->getRemainingQuota()) }} Tiket</div>
@@ -532,38 +528,36 @@
         </div>
     </div>
 
-    @if($event->image_path)
-        <div id="imageModal" class="img-modal">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <img class="modal-content" id="imgFull" src="{{ asset('storage/' . $event->image_path) }}">
-            <div class="modal-actions">
-                <a href="{{ asset('storage/' . $event->image_path) }}"
-                    download="{{ \Illuminate\Support\Str::slug($event->name) }}.jpg" class="btn-download">
-                    📥 Download Banner
-                </a>
-            </div>
+    <div id="imageModal" class="img-modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="imgFull" src="{{ $event->image_url }}">
+        <div class="modal-actions">
+            <a href="{{ $event->image_url }}"
+                download="{{ \Illuminate\Support\Str::slug($event->name) }}.jpg" class="btn-download">
+                📥 Download Banner
+            </a>
         </div>
+    </div>
 
-        <script>
-            function openModal() {
-                document.getElementById("imageModal").style.display = "block";
-                document.body.style.overflow = "hidden"; // Disable scroll
-            }
+    <script>
+        function openModal() {
+            document.getElementById("imageModal").style.display = "block";
+            document.body.style.overflow = "hidden"; // Disable scroll
+        }
 
-            function closeModal() {
-                document.getElementById("imageModal").style.display = "none";
-                document.body.style.overflow = "auto"; // Enable scroll
-            }
+        function closeModal() {
+            document.getElementById("imageModal").style.display = "none";
+            document.body.style.overflow = "auto"; // Enable scroll
+        }
 
-            // Close modal when clicking outside the image
-            window.onclick = function (event) {
-                let modal = document.getElementById("imageModal");
-                if (event.target == modal) {
-                    closeModal();
-                }
+        // Close modal when clicking outside the image
+        window.onclick = function (event) {
+            let modal = document.getElementById("imageModal");
+            if (event.target == modal) {
+                closeModal();
             }
-        </script>
-    @endif
+        }
+    </script>
 
 </body>
 
