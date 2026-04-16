@@ -425,8 +425,14 @@
         @endif
 
         <div class="event-header">
-            <img src="{{ $event->image_url }}" alt="{{ $event->name }}" class="event-banner"
-                onclick="openModal()">
+            <img src="{{ $event->image_url }}" 
+                 alt="Poster resmi untuk acara {{ $event->name }}" 
+                 class="event-banner"
+                 onclick="openModal()" 
+                 loading="eager" 
+                 fetchpriority="high" 
+                 width="1000" height="400"
+                 onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
 
             <div class="event-header-content">
                 <div class="event-date-badge">Tersisa {{ number_format($event->getRemainingQuota()) }} Tiket</div>
@@ -530,7 +536,7 @@
 
     <div id="imageModal" class="img-modal">
         <span class="modal-close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="imgFull" src="{{ $event->image_url }}">
+        <img class="modal-content" id="imgFull" src="{{ $event->image_url }}" alt="Full banner {{ $event->name }}" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
         <div class="modal-actions">
             <a href="{{ $event->image_url }}"
                 download="{{ \Illuminate\Support\Str::slug($event->name) }}.jpg" class="btn-download">

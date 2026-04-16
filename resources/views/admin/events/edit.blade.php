@@ -110,7 +110,7 @@
             <div class="form-group">
                 <label>Gambar Banner Event</label>
                 <div style="margin-bottom: 12px;">
-                    <img src="{{ $event->image_url }}" alt="Preview" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border);">
+                    <img src="{{ $event->image_url }}" alt="Preview" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border);" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
                 </div>
                 <input type="file" name="image" accept="image/*">
                 <p style="font-size: 11px; color: var(--muted); margin-top: 4px;">Pilih file baru untuk mengganti gambar.</p>

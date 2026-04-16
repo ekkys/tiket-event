@@ -317,7 +317,7 @@
 <div class="ticket-wrapper">
     <div class="ticket">
         <div class="ticket-banner-print">
-            <img src="{{ $ticket->registration->event->image_url }}" alt="Banner Event">
+            <img src="{{ $ticket->registration->event->image_url }}" alt="Banner Event" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
         </div>
         <div class="ticket-header">
             <span class="ticket-label">E-Ticket Resmi</span>
@@ -383,7 +383,7 @@
             </div>
 
             <div class="qr-section">
-                <img src="{{ $ticket->qr_url }}" alt="QR Code Tiket">
+                <img src="{{ $ticket->qr_url }}" alt="QR Code Tiket" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
                 <p class="qr-hint">Scan QR code ini pada pintu masuk area event</p>
                 <div class="ticket-code">{{ $ticket->registration->registration_code }}</div>
 

@@ -231,11 +231,12 @@
         @forelse($events as $event)
         <div class="event-card">
             <div class="event-image-wrap">
-                @if($event->image_path)
-                    <img src="{{ asset('storage/' . $event->image_path) }}" alt="{{ $event->name }}" class="event-image">
-                @else
-                    <div style="width: 100%; height: 100%; background: #F1F5F9; display: flex; align-items: center; justify-content: center; color: #94A3B8; font-weight: 800; font-size: 14px;">NO PREVIEW</div>
-                @endif
+                <img src="{{ $event->image_url }}" 
+                     alt="Banner {{ $event->name }}" 
+                     class="event-image" 
+                     loading="lazy" 
+                     width="400" height="225"
+                     onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
                 <div class="event-badge">{{ $event->is_free ? '🎁 GRATIS' : '🎟️ BERBAYAR' }}</div>
             </div>
             

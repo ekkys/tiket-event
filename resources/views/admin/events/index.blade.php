@@ -162,7 +162,10 @@
                     @foreach($events as $event)
                     <tr>
                         <td>
-                            <img src="{{ $event->image_url }}" alt="{{ $event->name }}" style="width: 50px; height: 35px; border-radius: 6px; object-fit: cover;">
+                            <img src="{{ $event->image_url }}" 
+                                 alt="{{ $event->name }}" 
+                                 style="width: 50px; height: 35px; border-radius: 6px; object-fit: cover;"
+                                 onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
                         </td>
                         <td style="font-weight:600;">{{ $event->name }}</td>
                         <td>{{ $event->event_date->format('d M Y') }}</td>
