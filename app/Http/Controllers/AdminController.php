@@ -354,6 +354,24 @@ class AdminController extends Controller
         return view('admin.profile', compact('user'));
     }
 
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ], [
+            'email.unique' => 'Email ini sudah digunakan oleh pengguna lain.',
+            'email.required' => 'Email wajib diisi.',
+            'name.required' => 'Nama wajib diisi.',
+        ]);
+
+        $user->update($validated);
+
+        return back()->with('success', 'Profil berhasil diperbarui.');
+    }
+
     public function updatePassword(Request $request)
     {
         $request->validate([

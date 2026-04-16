@@ -73,6 +73,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
     Route::get('/export', [AdminController::class , 'export'])->name('export');
     Route::get('/scan-logs', [AdminController::class , 'scanLogs'])->name('scan-logs');
     Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
+    Route::put('/profile', [AdminController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/password', [AdminController::class, 'updatePassword'])->name('profile.password.update');
 
     // Event Management

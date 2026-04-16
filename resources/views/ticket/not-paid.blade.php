@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tiket Belum Dibayar - {{ $ticket->registration->event->name }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #F4F2FF;
+            font-family: 'Figtree', sans-serif;
+            background: #F8FAFC;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -17,24 +17,31 @@
         }
         .card {
             background: white;
-            border-radius: 24px;
-            padding: 40px;
+            border-radius: 32px;
+            padding: 48px 40px;
             max-width: 440px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(92,59,254,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border: 1px solid #F1F5F9;
         }
         .icon { font-size: 4rem; margin-bottom: 24px; }
-        h1 { font-size: 1.5rem; color: #1A1033; margin-bottom: 12px; }
-        p { color: #7B7A8E; line-height: 1.6; margin-bottom: 32px; }
+        h1 { font-size: 1.5rem; color: #0F172A; margin-bottom: 12px; font-weight: 800; }
+        p { color: #64748B; line-height: 1.6; margin-bottom: 32px; font-weight: 500; }
         .btn {
             display: inline-block;
-            background: linear-gradient(135deg, #5C3BFE, #8B5CF6);
+            background: linear-gradient(135deg, #1E3A8A, #3B82F6);
             color: white;
             text-decoration: none;
-            padding: 16px 32px;
-            border-radius: 14px;
-            font-weight: 700;
+            padding: 16px 36px;
+            border-radius: 16px;
+            font-weight: 800;
+            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.2);
+            transition: 0.3s;
+        }
+        .btn:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(30, 58, 138, 0.3);
         }
     </style>
 </head>

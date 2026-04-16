@@ -36,7 +36,7 @@
             max-width: 500px; 
             border-radius: 40px; 
             padding: 56px 48px; 
-            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.6); 
+            box-shadow: 0 40px 120px -20px rgba(0,0,0,0.85); 
             border: 1px solid rgba(255,255,255,0.1); 
             animation: slideUp 0.6s cubic-bezier(0.2, 0, 0, 1);
         }

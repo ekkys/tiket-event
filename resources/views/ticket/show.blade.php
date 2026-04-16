@@ -63,6 +63,19 @@
             overflow: hidden;
         }
 
+        .ticket-banner-print {
+            display: none;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .ticket-banner-print img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .ticket-header::before {
             content: '';
             position: absolute;
@@ -288,6 +301,7 @@
             body { background: white; padding: 0; }
             .ticket { box-shadow: none; border: 1px solid #eee; }
             .actions, .footer-note { display: none; }
+            .ticket-banner-print { display: block !important; }
         }
 
         @media (max-width: 480px) {
@@ -302,6 +316,11 @@
 <body>
 <div class="ticket-wrapper">
     <div class="ticket">
+        @if($ticket->registration->event->image_path)
+            <div class="ticket-banner-print">
+                <img src="{{ Storage::url($ticket->registration->event->image_path) }}" alt="Banner Event">
+            </div>
+        @endif
         <div class="ticket-header">
             <span class="ticket-label">E-Ticket Resmi</span>
             <h1 class="event-name">{{ $ticket->registration->event->name }}</h1>

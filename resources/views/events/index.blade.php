@@ -48,8 +48,8 @@
 
         /* Features / Trust Section */
         .trust-section { max-width: 1200px; margin: 100px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
-        .trust-card { background: var(--white); padding: 40px 32px; border-radius: 28px; text-align: center; border: 1px solid #E2E8F0; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .trust-card:hover { border-color: var(--accent); transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .trust-card { background: var(--white); padding: 40px 32px; border-radius: 28px; text-align: center; border: 1px solid #E2E8F0; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
+        .trust-card:hover { border-color: var(--accent); transform: translateY(-8px); box-shadow: 0 25px 60px rgba(0,0,0,0.1); }
         .trust-icon { font-size: 3rem; margin-bottom: 24px; display: block; }
         .trust-card h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; color: var(--dark); letter-spacing: -0.5px; }
         .trust-card p { color: var(--muted); font-size: 15px; line-height: 1.6; }
@@ -61,8 +61,8 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px 100px; }
         .event-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 32px; }
         
-        .event-card { background: var(--white); border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #E2E8F0; display: flex; flex-direction: column; }
-        .event-card:hover { transform: translateY(-12px); box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12); border-color: var(--accent); }
+        .event-card { background: var(--white); border-radius: 30px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.1); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #E2E8F0; display: flex; flex-direction: column; }
+        .event-card:hover { transform: translateY(-12px); box-shadow: 0 30px 70px rgba(15, 23, 42, 0.15); border-color: var(--accent); }
         
         .event-image-wrap { position: relative; height: 220px; overflow: hidden; }
         .event-image { width: 100%; height: 100%; object-fit: cover; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }

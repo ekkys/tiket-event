@@ -111,14 +111,19 @@
 
     <div class="card" style="margin-bottom: 32px;">
         <div class="card-title">Informasi Akun</div>
-        <div class="form-group">
-            <label>Nama Lengkap</label>
-            <input type="text" value="{{ $user->name }}" disabled style="cursor: not-allowed; opacity: 0.7;">
-        </div>
-        <div class="form-group">
-            <label>Alamat Email</label>
-            <input type="text" value="{{ $user->email }}" disabled style="cursor: not-allowed; opacity: 0.7;">
-        </div>
+        <form action="{{ route('admin.profile.update') }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" name="name" value="{{ old('name', $user->name) }}" required>
+            </div>
+            <div class="form-group">
+                <label>Alamat Email</label>
+                <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Simpan Profil</button>
+        </form>
     </div>
 
     <div class="card">

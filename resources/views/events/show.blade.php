@@ -64,7 +64,7 @@
             background: white;
             border-radius: 32px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
             margin-bottom: 40px;
             border: 1px solid #E2E8F0;
         }
@@ -146,7 +146,7 @@
             background: white;
             border-radius: 28px;
             padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
             margin-bottom: 32px;
             border: 1px solid #F1F5F9;
         }
@@ -209,7 +209,7 @@
             border-radius: 32px;
             padding: 40px;
             border: 1px solid var(--border);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.1);
         }
 
         .price-label {
