@@ -61,7 +61,7 @@ class AdminController extends Controller
             $query->where('payment_status', $request->status);
         }
 
-        $registrations = $query->paginate(50)->withQueryString();
+        $registrations = $query->paginate(15)->withQueryString();
         return view('admin.registrations', compact('registrations'));
     }
 
@@ -102,13 +102,27 @@ class AdminController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function scanLogs()
+    public function scanLogs(Request $request)
     {
         $userId = auth()->id();
-        $logs = ScanLog::whereHas('ticket.registration.event', fn($q) => $q->where('user_id', $userId))
+        $query = ScanLog::whereHas('ticket.registration.event', fn($q) => $q->where('user_id', $userId))
             ->with(['ticket.registration.event'])
-            ->latest()
-            ->paginate(100);
+            ->latest();
+
+        if ($request->search) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('token', 'like', "%{$s}%")
+                  ->orWhere('scanner_name', 'like', "%{$s}%")
+                  ->orWhere('message', 'like', "%{$s}%")
+                  ->orWhereHas('ticket.registration', function($sq) use ($s) {
+                      $sq->where('full_name', 'like', "%{$s}%")
+                        ->orWhere('registration_code', 'like', "%{$s}%");
+                  });
+            });
+        }
+
+        $logs = $query->paginate(15)->withQueryString();
         return view('admin.scan-logs', compact('logs'));
     }
 
@@ -116,7 +130,7 @@ class AdminController extends Controller
 
     public function events()
     {
-        $events = Event::where('user_id', auth()->id())->latest()->get();
+        $events = Event::where('user_id', auth()->id())->latest()->paginate(15)->withQueryString();
         return view('admin.events.index', compact('events'));
     }
 

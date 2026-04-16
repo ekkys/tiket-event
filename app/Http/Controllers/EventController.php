@@ -20,7 +20,7 @@ class EventController extends Controller
             });
         }
 
-        $events = $query->latest()->get();
+        $events = $query->latest()->paginate(15)->withQueryString();
         return view('events.index', compact('events'));
     }
 

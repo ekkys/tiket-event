@@ -71,6 +71,40 @@
             .card { padding: 20px; }
             .main-content { padding: 16px; }
         }
+
+        .pagination { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .pagination a, .pagination span { 
+            padding: 8px 14px; 
+            border-radius: 10px; 
+            border: 1px solid #E2E8F0; 
+            text-decoration: none; 
+            color: var(--text); 
+            font-size: 13px; 
+            font-weight: 700;
+            background: white;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+        .pagination a:hover { 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            background: #F8F7FF;
+            transform: translateY(-1px);
+        }
+        .pagination .active span { 
+            background: var(--primary); 
+            color: white; 
+            border-color: var(--primary); 
+            box-shadow: 0 4px 10px rgba(92, 59, 254, 0.2);
+        }
+        .pagination .disabled span { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+            background: #F8FAFC;
+        }
     </style>
 </head>
 <body>
@@ -164,6 +198,10 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        <div class="pagination-wrapper">
+            {{ $events->links('vendor.pagination.custom') }}
         </div>
     </div>
 </div>

@@ -38,8 +38,39 @@
         .badge-success { background: #DCFCE7; color: #166534; }
         .badge-error { background: #FEE2E2; color: #991B1B; }
 
-        .pagination { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; }
-        .pagination a, .pagination span { padding: 8px 12px; border-radius: 8px; border: 1px solid #E2E8F0; text-decoration: none; color: var(--text); font-size: 13px; }
+        .pagination { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .pagination a, .pagination span { 
+            padding: 8px 14px; 
+            border-radius: 10px; 
+            border: 1px solid #E2E8F0; 
+            text-decoration: none; 
+            color: var(--text); 
+            font-size: 13px; 
+            font-weight: 700;
+            background: white;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+        .pagination a:hover { 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            background: #F8F7FF;
+            transform: translateY(-1px);
+        }
+        .pagination .active span { 
+            background: var(--primary); 
+            color: white; 
+            border-color: var(--primary); 
+            box-shadow: 0 4px 10px rgba(92, 59, 254, 0.2);
+        }
+        .pagination .disabled span { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+            background: #F8FAFC;
+        }
 
         .mobile-header { display: none; background: white; padding: 16px 24px; border-bottom: 1px solid #E2E8F0; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 999; }
         .menu-toggle { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text); }
@@ -88,52 +119,59 @@
     </div>
 </div>
 
-<div class="main-content">
-    <div class="header">
-        <h1>Log Scanner</h1>
-    </div>
-
-    <div class="card">
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Peserta</th>
-                        <th>NIK</th>
-                        <th>Status</th>
-                        <th>Pesan</th>
-                        <th>Scanner</th>
-                        <th>Waktu</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($logs as $log)
-                    <tr>
-                        <td>
-                            @if($log->ticket?->registration)
-                                <div style="font-weight:700;">{{ $log->ticket->registration->full_name }}</div>
-                                <div style="font-size:11px; color:var(--muted);">{{ $log->token }}</div>
-                            @else
-                                <span style="font-family: monospace; font-size: 12px; color: var(--muted);">{{ $log->token }}</span>
-                            @endif
-                        </td>
-                        <td style="font-size: 12px;">{{ $log->ticket?->registration->id_number ?? '-' }}</td>
-                        <td>
-                            <span class="badge badge-{{ $log->success ? 'success' : 'error' }}">
-                                {{ $log->success ? 'Berhasil' : 'Gagal' }}
-                            </span>
-                        </td>
-                        <td>{{ $log->message }}</td>
-                        <td style="font-weight:600;">{{ $log->scanner_name }}</td>
-                        <td style="color:var(--muted); font-size:12px;">{{ $log->created_at->format('d/m/Y H:i:s') }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+    <div class="main-content">
+        <div class="header">
+            <h1>Log Scanner</h1>
         </div>
 
-        <div class="pagination">
-            {{ $logs->links() }}
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px;">
+                <form action="{{ route('admin.scan-logs') }}" method="GET" class="search-box" style="flex: 1; position: relative;">
+                    <input type="text" name="search" placeholder="Cari nama, token, atau scanner..." value="{{ request('search') }}" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #E2E8F0; font-family: inherit; outline: none;">
+                </form>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Peserta</th>
+                            <th>NIK</th>
+                            <th>Status</th>
+                            <th>Pesan</th>
+                            <th>Scanner</th>
+                            <th>Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($logs as $log)
+                        <tr>
+                            <td>{{ ($logs->currentPage() - 1) * $logs->perPage() + $loop->iteration }}</td>
+                            <td>
+                                @if($log->ticket?->registration)
+                                    <div style="font-weight:700;">{{ $log->ticket->registration->full_name }}</div>
+                                    <div style="font-size:11px; color:var(--muted);">{{ $log->token }}</div>
+                                @else
+                                    <span style="font-family: monospace; font-size: 12px; color: var(--muted);">{{ $log->token }}</span>
+                                @endif
+                            </td>
+                            <td style="font-size: 12px;">{{ $log->ticket?->registration->id_number ?? '-' }}</td>
+                            <td>
+                                <span class="badge badge-{{ $log->success ? 'success' : 'error' }}">
+                                    {{ $log->success ? 'Berhasil' : 'Gagal' }}
+                                </span>
+                            </td>
+                            <td>{{ $log->message }}</td>
+                            <td style="font-weight:600;">{{ $log->scanner_name }}</td>
+                            <td style="color:var(--muted); font-size:12px;">{{ $log->created_at->format('d/m/Y H:i:s') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+        <div class="pagination-wrapper">
+            {{ $logs->links('vendor.pagination.custom') }}
         </div>
     </div>
 </div>

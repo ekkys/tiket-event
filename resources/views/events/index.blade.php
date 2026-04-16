@@ -112,6 +112,43 @@
             .event-content { padding: 24px; }
             .event-title { font-size: 1.3rem; }
         }
+
+        .pagination { margin-top: 48px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .pagination a, .pagination span { 
+            padding: 12px 22px; 
+            border-radius: 16px; 
+            background: var(--white);
+            border: 1px solid #E2E8F0; 
+            text-decoration: none; 
+            color: var(--text); 
+            font-size: 14px; 
+            font-weight: 800;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .pagination a:hover { 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(30, 58, 138, 0.1);
+            background: #F8F9FF;
+        }
+        .pagination .active span { 
+            background: var(--primary); 
+            color: white; 
+            border-color: var(--primary); 
+            box-shadow: 0 8px 20px rgba(30, 58, 138, 0.25);
+        }
+        .pagination .disabled span { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+            background: #F8FAFC;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
@@ -229,6 +266,10 @@
             <a href="{{ route('home') }}" class="btn btn-primary" style="margin-top: 32px;">Lihat Semua Event</a>
         </div>
         @endforelse
+    </div>
+
+    <div class="pagination-wrapper">
+        {{ $events->links('vendor.pagination.custom') }}
     </div>
 </div>
 

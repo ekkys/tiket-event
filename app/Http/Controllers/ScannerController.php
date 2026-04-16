@@ -28,14 +28,17 @@ class ScannerController extends Controller
         // Cache hasil verifikasi selama 60 detik (hindari double-scan spam)
         $cacheKey = 'scan_result:' . $token;
 
-        // Cari tiket - query ringan dengan index
+        // Cari tiket - bisa lewat token (QR) atau registration_code (Input Manual)
         $ticket = Ticket::where('token', $token)
+            ->orWhereHas('registration', function($q) use ($token) {
+                $q->where('registration_code', $token);
+            })
             ->with(['registration:id,full_name,email,phone,institution,event_id,payment_status',
                     'registration.event:id,name,event_date'])
             ->first();
 
         if (!$ticket) {
-            $this->logScan($token, false, 'Tiket tidak ditemukan', $scannerName, $request->ip());
+            $this->logScan($token, false, 'Tiket tidak ditemukan', $scannerName, $request->ip(), null);
             return response()->json([
                 'success' => false,
                 'status'  => 'invalid',
@@ -44,7 +47,7 @@ class ScannerController extends Controller
         }
 
         if (!$ticket->registration->isPaid()) {
-            $this->logScan($token, false, 'Belum bayar', $scannerName, $request->ip());
+            $this->logScan($token, false, 'Belum bayar', $scannerName, $request->ip(), $ticket->id);
             return response()->json([
                 'success' => false,
                 'status'  => 'unpaid',
@@ -53,7 +56,7 @@ class ScannerController extends Controller
         }
 
         if ($ticket->is_used) {
-            $this->logScan($token, false, 'Sudah digunakan', $scannerName, $request->ip());
+            $this->logScan($token, false, 'Sudah digunakan', $scannerName, $request->ip(), $ticket->id);
             return response()->json([
                 'success'  => false,
                 'status'   => 'used',
@@ -83,7 +86,7 @@ class ScannerController extends Controller
             ]);
         }
 
-        $this->logScan($token, true, 'Berhasil masuk', $scannerName, $request->ip());
+        $this->logScan($token, true, 'Berhasil masuk', $scannerName, $request->ip(), $ticket->id);
 
         return response()->json([
             'success'     => true,
@@ -100,12 +103,13 @@ class ScannerController extends Controller
         ]);
     }
 
-    private function logScan(string $token, bool $success, string $message, string $scanner, string $ip): void
+    private function logScan(string $token, bool $success, string $message, string $scanner, string $ip, ?int $ticketId): void
     {
         // Insert log secara async agar scan tidak lambat
-        dispatch(function () use ($token, $success, $message, $scanner, $ip) {
+        dispatch(function () use ($token, $success, $message, $scanner, $ip, $ticketId) {
             \App\Models\ScanLog::create([
                 'token'        => $token,
+                'ticket_id'    => $ticketId,
                 'success'      => $success,
                 'message'      => $message,
                 'scanner_name' => $scanner,
