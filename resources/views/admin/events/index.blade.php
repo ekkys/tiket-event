@@ -162,11 +162,10 @@
                     @foreach($events as $event)
                     <tr>
                         <td>
-                            @if($event->image_path)
-                                <img src="{{ asset('storage/' . $event->image_path) }}" alt="{{ $event->name }}" style="width: 50px; height: 35px; border-radius: 6px; object-fit: cover;">
-                            @else
-                                <div style="width: 50px; height: 35px; background: #EEE; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999;">No Image</div>
-                            @endif
+                            <img src="{{ $event->image_url }}" 
+                                 alt="{{ $event->name }}" 
+                                 style="width: 50px; height: 35px; border-radius: 6px; object-fit: cover;"
+                                 onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
                         </td>
                         <td style="font-weight:600;">{{ $event->name }}</td>
                         <td>{{ $event->event_date->format('d M Y') }}</td>

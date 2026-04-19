@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Mail\TicketMail;
 
 class Ticket extends Model
@@ -44,5 +45,13 @@ class Ticket extends Model
     public function getVerifyUrlAttribute(): string
     {
         return route('ticket.verify', $this->token);
+    }
+
+    public function getQrUrlAttribute(): string
+    {
+        if ($this->qr_code_path && Storage::disk('public')->exists($this->qr_code_path)) {
+            return Storage::disk('public')->url($this->qr_code_path);
+        }
+        return ""; // Should not happen ideally
     }
 }

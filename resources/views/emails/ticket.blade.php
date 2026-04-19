@@ -154,7 +154,13 @@
 
                         <div class="ticket-card">
                             <div class="qr-container">
-                                <img src="{{ $message->embed(storage_path('app/public/' . $ticket->qr_code_path)) }}" width="200" height="200" alt="QR Code Ticket">
+                                @php
+                                    $qrPath = storage_path('app/public/' . $ticket->qr_code_path);
+                                    if (!file_exists($qrPath)) {
+                                        $qrPath = public_path('images/placeholder-event.png'); // Fallback for email as well
+                                    }
+                                @endphp
+                                <img src="{{ $message->embed($qrPath) }}" width="200" height="200" alt="QR Code Ticket">
                             </div>
                             <div class="ticket-code-label">ID Registrasi</div>
                             <div class="ticket-code">{{ $registration->registration_code }}</div>
