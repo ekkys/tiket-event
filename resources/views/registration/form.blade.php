@@ -319,6 +319,101 @@
             align-items: center;
             gap: 8px;
         }
+
+        /* Queue Modal Styles */
+        #queueModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 32px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), #3B82F6, var(--primary));
+            background-size: 200% 100%;
+            animation: moveGradient 2s linear infinite;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+
+        .loader-wrapper {
+            margin-bottom: 24px;
+        }
+
+        .spinner {
+            width: 64px;
+            height: 64px;
+            border: 5px solid #F1F5F9;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .modal-text {
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .queue-badge {
+            background: #EFF6FF;
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 16px;
+            border: 1px solid #DBEAFE;
+        }
+
+        .luck-text {
+            font-style: italic;
+            color: #64748B;
+            font-size: 13px;
+        }
+
     </style>
 </head>
 
@@ -469,34 +564,127 @@
         </div>
     </div>
 
+    <!-- Queue Modal -->
+    <div id="queueModal">
+        <div class="modal-content">
+            <div class="loader-wrapper">
+                <div class="spinner"></div>
+            </div>
+            <div id="queueStatusBadge" class="queue-badge">Menghubungkan...</div>
+            <h2 class="modal-title">Memproses Pendaftaran</h2>
+            <p class="modal-text" id="queueMessage">
+                Mohon tunggu sebentar, kami sedang menyiapkan tiket Anda.
+            </p>
+            <p class="luck-text">
+                "Antrian ke-<span id="queuePos">...</span>. Mohon tunggu, tiket Anda sedang diproses. Karena kuota terbatas semoga anda beruntung."
+            </p>
+        </div>
+    </div>
+
+
     <script>
-        document.getElementById('regForm').addEventListener('submit', function () {
-            const btn = document.getElementById('submitBtn');
-            const txt = document.getElementById('btnText');
-            btn.disabled = true;
-            txt.textContent = '⏳ Memproses...';
+        const regForm = document.getElementById('regForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const queueModal = document.getElementById('queueModal');
+        const queuePos = document.getElementById('queuePos');
+        const isFree = {{ $event->is_free ? 'true' : 'false' }};
+
+        regForm.addEventListener('submit', function (e) {
+            // Jika berbayar, biarkan normal submit ke payment gateway (atau AJAX jika ingin konsisten)
+            // Namun user minta "Hanya untuk tiket gratis" untuk modal antrian.
+            if (!isFree) return; 
+
+            e.preventDefault();
+            
+            submitBtn.disabled = true;
+            btnText.textContent = '⏳ Memproses...';
+
+            const formData = new FormData(regForm);
+
+            fetch(regForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson ? await response.json() : null;
+
+                if (!response.ok) {
+                    throw new Error(data?.message || `Server error: ${response.status}`);
+                }
+                return data;
+            })
+            .then(data => {
+
+                if (data.success) {
+                    if (data.registration_code) {
+                        // Tampilkan Modal Antrian
+                        queueModal.style.display = 'flex';
+                        startPolling(data.registration_code);
+                    } else if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                } else {
+                    alert(data.message || 'Terjadi kesalahan. Silakan coba lagi.');
+                    submitBtn.disabled = false;
+                    btnText.textContent = isFree ? '🎁 Daftar Sekarang' : '💳 Lanjut Pembayaran';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Gagal mengirim data. Periksa koneksi internet Anda.');
+                submitBtn.disabled = false;
+                btnText.textContent = isFree ? '🎁 Daftar Sekarang' : '💳 Lanjut Pembayaran';
+            });
         });
+
+        function startPolling(code) {
+            const interval = setInterval(() => {
+                fetch(`/daftar/status/${code}`, {
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'completed') {
+                        clearInterval(interval);
+                        window.location.href = data.redirect;
+                    } else {
+                        queuePos.textContent = data.queue_info;
+                        document.getElementById('queueStatusBadge').textContent = 'Dalam Antrian';
+                    }
+                })
+                .catch(err => console.error('Polling error:', err));
+            }, 3000);
+        }
 
         // Real-time NIK validation
         const nikInput = document.getElementById('nikInput');
         const nikFeedback = document.getElementById('nikFeedback');
 
-        nikInput.addEventListener('input', function () {
-            const val = this.value;
-            if (val.length === 0) {
-                nikFeedback.textContent = '';
-            } else if (val.length < 16) {
-                nikFeedback.textContent = '❌ Kurang dari 16 digit';
-                nikFeedback.style.color = '#EF4444';
-            } else {
-                nikFeedback.textContent = '✅ Format Sesuai (16 digit)';
-                nikFeedback.style.color = '#10B981';
-            }
+        if (nikInput) {
+            nikInput.addEventListener('input', function () {
+                const val = this.value;
+                if (val.length === 0) {
+                    nikFeedback.textContent = '';
+                } else if (val.length < 16) {
+                    nikFeedback.textContent = '❌ Kurang dari 16 digit';
+                    nikFeedback.style.color = '#EF4444';
+                } else {
+                    nikFeedback.textContent = '✅ Format Sesuai (16 digit)';
+                    nikFeedback.style.color = '#10B981';
+                }
 
-            // Hanya angka
-            this.value = val.replace(/[^0-9]/g, '');
-        });
+                // Hanya angka
+                this.value = val.replace(/[^0-9]/g, '');
+            });
+        }
     </script>
+
 </body>
 
 </html>

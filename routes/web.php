@@ -18,6 +18,7 @@ Route::get('/daftar', [RegistrationController::class , 'showForm'])->name('regis
 Route::get('/daftar/{event}', [RegistrationController::class , 'showForm'])->name('registration.form.specific');
 Route::post('/daftar', [RegistrationController::class , 'store'])->name('registration.store');
 Route::get('/daftar/berhasil/{code}', [RegistrationController::class , 'success'])->name('registration.success');
+Route::get('/daftar/status/{code}', [RegistrationController::class , 'checkStatus'])->name('registration.check-status');
 Route::get('/daftar/penuh', fn() => view('registration.full'))->name('registration.full');
 
 // ---- Pembayaran ----

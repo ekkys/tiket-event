@@ -79,6 +79,10 @@ class GenerateTicketJob implements ShouldQueue
             'registration_id' => $this->registration->id,
             'token'           => $token,
         ]);
+
+        // Kirim Email Tiket
+        Mail::to($this->registration->email)->send(new TicketMail($this->registration, $ticket));
+        Log::info('Ticket email sent', ['registration_id' => $this->registration->id]);
     }
 
     public function failed(\Throwable $exception): void

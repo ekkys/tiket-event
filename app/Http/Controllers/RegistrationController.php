@@ -55,9 +55,30 @@ class RegistrationController extends Controller
             'address'        => 'nullable|string|max:300',
             'terms_accepted' => 'required|accepted', // Validasi centang S&K
         ], [
+            'email.unique'            => 'Email ini sudah terdaftar untuk event ini.',
+            'phone.unique'            => 'Nomor telepon ini sudah terdaftar untuk event ini.',
             'terms_accepted.required' => 'Anda harus menyetujui Syarat & Ketentuan untuk mendaftar.',
             'terms_accepted.accepted' => 'Anda harus menyetujui Syarat & Ketentuan untuk mendaftar.',
         ]);
+
+        // Cek email & nomor hp sudah daftar per event secara manual
+        $existing = Registration::where('event_id', $validated['event_id'])
+            ->where(function($query) use ($validated) {
+                $query->where('email', $validated['email'])
+                      ->orWhere('phone', $validated['phone']);
+            })->first();
+
+        if ($existing) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email atau Nomor Telepon sudah terdaftar sebelumnya.'
+                ], 422);
+            }
+            return redirect()->route('ticket.show', $existing->ticket?->token ?? $existing->registration_code)
+                ->with('info', 'Anda sudah terdaftar sebelumnya.');
+        }
+
 
         $event = Event::findOrFail($validated['event_id']);
 
@@ -68,21 +89,29 @@ class RegistrationController extends Controller
         }
 
         // Atomic check quota + insert menggunakan DB transaction
-        return DB::transaction(function () use ($validated, $event, $request) {
+        return DB::transaction(function () use ($validated, $event, $request, $existing) {
             // Lock row untuk hindari race condition
             $currentEvent = Event::lockForUpdate()->find($event->id);
 
             if (!$currentEvent->isQuotaAvailable()) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Maaf, kuota sudah penuh!'
+                    ], 422);
+                }
                 return redirect()->route('registration.full')
                     ->with('error', 'Maaf, kuota sudah penuh!');
             }
 
-            // Cek email sudah daftar
-            $existing = Registration::where('email', $validated['email'])
-                ->where('event_id', $event->id)
-                ->first();
-            
             if ($existing) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anda sudah terdaftar sebelumnya.',
+                        'redirect' => route('ticket.show', $existing->ticket?->token ?? $existing->registration_code)
+                    ], 422);
+                }
                 return redirect()->route('ticket.show', $existing->ticket?->token ?? $existing->registration_code)
                     ->with('info', 'Anda sudah terdaftar sebelumnya.');
             }
@@ -100,12 +129,57 @@ class RegistrationController extends Controller
             if ($event->is_free) {
                 // Dispatch job generate tiket ke queue
                 GenerateTicketJob::dispatch($registration);
+                
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'registration_code' => $registration->registration_code,
+                        'redirect' => route('registration.success', $registration->registration_code)
+                    ]);
+                }
                 return redirect()->route('registration.success', $registration->registration_code);
             }
 
             // Buat order Midtrans
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'redirect' => route('payment.show', $registration->registration_code)
+                ]);
+            }
             return redirect()->route('payment.show', $registration->registration_code);
         });
+    }
+
+    /**
+     * Cek status antrian tiket (polling AJAX)
+     */
+    public function checkStatus($code)
+    {
+        $registration = Registration::where('registration_code', $code)->first();
+
+        if (!$registration) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan.'
+            ], 404);
+        }
+
+        if ($registration->ticket_generated) {
+            return response()->json([
+                'status'   => 'completed',
+                'redirect' => route('registration.success', $code)
+            ]);
+        }
+
+        // Hitung estimasi antrian (hanya job yang belum dikerjakan di tabel jobs)
+        // Note: Ini estimasi sederhana berdasarkan jumlah job yang ada di queue
+        $queueCount = DB::table('jobs')->count();
+
+        return response()->json([
+            'status'     => 'processing',
+            'queue_info' => $queueCount > 0 ? $queueCount : 1
+        ]);
     }
 
     public function success($code)
