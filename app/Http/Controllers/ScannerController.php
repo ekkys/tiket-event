@@ -19,7 +19,7 @@ class ScannerController extends Controller
     public function verify(Request $request)
     {
         $token       = $request->input('token');
-        $scannerName = $request->input('scanner_name', 'Petugas');
+        $scannerName = auth()->user()->name;
 
         if (!$token) {
             return response()->json(['success' => false, 'message' => 'Token tidak valid'], 400);
@@ -34,7 +34,7 @@ class ScannerController extends Controller
                 $q->where('registration_code', $token);
             })
             ->with(['registration:id,full_name,email,phone,institution,event_id,payment_status',
-                    'registration.event:id,name,event_date'])
+                    'registration.event:id,name,event_date,user_id'])
             ->first();
 
         if (!$ticket) {
@@ -44,6 +44,16 @@ class ScannerController extends Controller
                 'status'  => 'invalid',
                 'message' => '❌ Tiket tidak valid atau tidak ditemukan',
             ]);
+        }
+
+        // Validasi: Hanya pembuat event yang bisa scan
+        if ($ticket->registration->event->user_id !== auth()->id()) {
+            $this->logScan($token, false, 'Bukan pembuat event (Akses Ditolak)', $scannerName, $request->ip(), $ticket->id);
+            return response()->json([
+                'success' => false,
+                'status'  => 'unauthorized',
+                'message' => '❌ Anda tidak memiliki akses untuk menscan tiket event ini.',
+            ], 403);
         }
 
         if (!$ticket->registration->isPaid()) {
@@ -118,13 +128,16 @@ class ScannerController extends Controller
         })->afterResponse();
     }
 
-    // Statistik realtime untuk admin
+    // Statistik realtime untuk admin (hanya event miliknya)
     public function stats()
     {
-        return Cache::remember('scan_stats', 10, function () {
+        $userId = auth()->id();
+        return Cache::remember('scan_stats_' . $userId, 10, function () use ($userId) {
             return response()->json([
-                'total_checked_in' => Ticket::where('is_used', true)->count(),
-                'total_tickets'    => Ticket::count(),
+                'total_checked_in' => Ticket::whereHas('registration.event', fn($q) => $q->where('user_id', $userId))
+                    ->where('is_used', true)->count(),
+                'total_tickets'    => Ticket::whereHas('registration.event', fn($q) => $q->where('user_id', $userId))
+                    ->count(),
             ]);
         });
     }
