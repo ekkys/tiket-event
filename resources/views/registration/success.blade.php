@@ -197,6 +197,23 @@
 
         @if($registration->ticket)
             <a href="{{ route('ticket.show', $registration->ticket->token) }}" class="btn">🎟️ Lihat Tiket Digital</a>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (!urlParams.has('downloaded')) {
+                        const downloadUrl = "{{ route('ticket.download', $registration->ticket->token) }}";
+                        // Beri jeda sedikit agar user bisa melihat pesan berhasil
+                        setTimeout(() => {
+                            window.location.href = downloadUrl;
+                            // Tandai sudah download agar tidak berulang saat refresh manual
+                            urlParams.set('downloaded', '1');
+                            const newUrl = window.location.pathname + '?' + urlParams.toString();
+                            window.history.replaceState(null, '', newUrl);
+                        }, 1500);
+                    }
+                });
+            </script>
         @else
             <div class="loading-text">
                 <span>Sedang menyiapkan tiket Anda</span>
