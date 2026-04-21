@@ -188,8 +188,9 @@
             kami terima.
             <br><br>
             @if($registration->payment_status === 'free')
-                Tiket digital Anda sedang dibuat. Silakan cek email Anda secara berkala atau klik tombol di bawah untuk
-                melihat tiket langsung.
+                Tiket digital Anda sedang dibuat. Tiket akan otomatis terdownload ke device anda. Silahkan cek folder
+                download pada device anda. Email juga akan di kirim ke email anda. Disarankan mendownload tiket atau
+                melakukan screenshoot untuk menyimpan barcode.
             @else
                 Silakan selesaikan pembayaran sesuai instruksi yang telah dikirim agar tiket dapat segera kami terbitkan.
             @endif
@@ -197,9 +198,9 @@
 
         @if($registration->ticket)
             <a href="{{ route('ticket.show', $registration->ticket->token) }}" class="btn">🎟️ Lihat Tiket Digital</a>
-            
+
             <script>
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function () {
                     const urlParams = new URLSearchParams(window.location.search);
                     if (!urlParams.has('downloaded')) {
                         const downloadUrl = "{{ route('ticket.download', $registration->ticket->token) }}";

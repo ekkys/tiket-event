@@ -1,11 +1,13 @@
 {{-- FILE: resources/views/ticket/show.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tiket - {{ $ticket->registration->full_name }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #5C3BFE;
@@ -19,12 +21,16 @@
             --warning: #F59E0B;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--bg-dark);
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(92, 59, 254, 0.15) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 20%);
             min-height: 100vh;
@@ -42,15 +48,22 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .ticket {
             background: var(--surface);
             border-radius: 40px;
             overflow: hidden;
-            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.6);
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.6);
             color: var(--text-dark);
         }
 
@@ -79,10 +92,12 @@
         .ticket-header::before {
             content: '';
             position: absolute;
-            top: -50px; right: -50px;
-            width: 160px; height: 160px;
+            top: -50px;
+            right: -50px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .ticket-label {
@@ -122,14 +137,20 @@
         }
 
         .notch {
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: var(--bg-dark);
             flex-shrink: 0;
         }
 
-        .notch-left { margin-left: -20px; }
-        .notch-right { margin-right: -20px; }
+        .notch-left {
+            margin-left: -20px;
+        }
+
+        .notch-right {
+            margin-right: -20px;
+        }
 
         .perforation {
             flex: 1;
@@ -266,12 +287,12 @@
         .btn-primary {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
-            box-shadow: 0 10px 25px rgba(92,59,254,0.3);
+            box-shadow: 0 10px 25px rgba(92, 59, 254, 0.3);
         }
 
         .btn-primary:hover {
             transform: translateY(-4px);
-            box-shadow: 0 15px 30px rgba(92,59,254,0.4);
+            box-shadow: 0 15px 30px rgba(92, 59, 254, 0.4);
         }
 
         .btn-secondary {
@@ -298,126 +319,191 @@
         }
 
         @media print {
-            body { background: white; padding: 0; }
-            .ticket { box-shadow: none; border: 1px solid #eee; }
-            .actions, .footer-note { display: none; }
-            .ticket-banner-print { display: block !important; }
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .ticket {
+                box-shadow: none;
+                border: 1px solid #eee;
+            }
+
+            .actions,
+            .footer-note {
+                display: none;
+            }
+
+            .ticket-banner-print {
+                display: block !important;
+            }
         }
 
         @media (max-width: 480px) {
-            .ticket-header { padding: 32px 24px; }
-            .event-name { font-size: 1.5rem; }
-            .ticket-body { padding: 24px; }
-            .attendee-name { font-size: 1.3rem; }
-            .detail-grid { grid-template-columns: 1fr; }
+            .ticket-header {
+                padding: 32px 24px;
+            }
+
+            .event-name {
+                font-size: 1.5rem;
+            }
+
+            .ticket-body {
+                padding: 24px;
+            }
+
+            .attendee-name {
+                font-size: 1.3rem;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
-<div class="ticket-wrapper">
-    <div class="ticket">
-        <div class="ticket-banner-print">
-            <img src="{{ $ticket->registration->event->image_url }}" alt="Banner Event" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
-        </div>
-        <div class="ticket-header">
-            <span class="ticket-label">E-Ticket Resmi</span>
-            <h1 class="event-name">{{ $ticket->registration->event->name }}</h1>
-            <div class="event-meta">
-                <span>📅 {{ $ticket->registration->event->event_date->isoFormat('dddd, D MMMM Y') }}</span>
-                @if($ticket->registration->event->location_name || $ticket->registration->event->location)
-                    <span>
-                        📍 
-                        @if($ticket->registration->event->location_link)
-                            <a href="{{ $ticket->registration->event->location_link }}" target="_blank" style="color: inherit; text-decoration: underline;">
-                                {{ $ticket->registration->event->location_name ?: $ticket->registration->event->location }}
-                            </a>
-                        @else
-                            {{ $ticket->registration->event->location_name ?: $ticket->registration->event->location }}
-                        @endif
-                    </span>
-                @endif
+    <div class="ticket-wrapper">
+        <div class="ticket">
+            <div class="ticket-banner-print">
+                <img src="{{ $ticket->registration->event->image_url }}" alt="Banner Event"
+                    onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
             </div>
-        </div>
-
-        <div class="ticket-divider">
-            <div class="notch notch-left"></div>
-            <div class="perforation"></div>
-            <div class="notch notch-right"></div>
-        </div>
-
-        <div class="ticket-body">
-            <div class="attendee-info">
-                <div class="status-badge">
-                    ✅ Tiket Aktif & Valid
-                </div>
-                <h2 class="attendee-name">{{ $ticket->registration->full_name }}</h2>
-                <div class="attendee-sub">
-                    {{ $ticket->registration->email }}
-                    @if($ticket->registration->institution)
-                        · {{ $ticket->registration->institution }}
+            <div class="ticket-header">
+                <span class="ticket-label">E-Ticket Resmi</span>
+                <h1 class="event-name">{{ $ticket->registration->event->name }}</h1>
+                <div class="event-meta">
+                    <span>📅 {{ $ticket->registration->event->event_date->isoFormat('dddd, D MMMM Y') }}</span>
+                    @if($ticket->registration->event->location_name || $ticket->registration->event->location)
+                        <span>
+                            📍
+                            @if($ticket->registration->event->location_link)
+                                <a href="{{ $ticket->registration->event->location_link }}" target="_blank"
+                                    style="color: inherit; text-decoration: underline;">
+                                    {{ $ticket->registration->event->location_name ?: $ticket->registration->event->location }}
+                                </a>
+                            @else
+                                {{ $ticket->registration->event->location_name ?: $ticket->registration->event->location }}
+                            @endif
+                        </span>
                     @endif
                 </div>
             </div>
 
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-key">Kode Registrasi</div>
-                    <div class="detail-val">{{ $ticket->registration->registration_code }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-key">Status Pembayaran</div>
-                    <div class="detail-val">
-                        {{ $ticket->registration->payment_status === 'free' ? '🎁 Gratis' : '✅ Lunas' }}
-                    </div>
-                </div>
-                @if($ticket->registration->amount_paid > 0)
-                <div class="detail-item">
-                    <div class="detail-key">Total Bayar</div>
-                    <div class="detail-val">{{ $ticket->registration->formatted_amount }}</div>
-                </div>
-                @endif
-                <div class="detail-item">
-                    <div class="detail-key">No. Telepon</div>
-                    <div class="detail-val">{{ $ticket->registration->phone }}</div>
-                </div>
+            <div class="ticket-divider">
+                <div class="notch notch-left"></div>
+                <div class="perforation"></div>
+                <div class="notch notch-right"></div>
             </div>
 
-            <div class="qr-section">
-                <img src="{{ $ticket->qr_url }}" alt="QR Code Tiket" onerror="this.onerror=null;this.src='{{ asset('images/placeholder-event.png') }}';">
-                <p class="qr-hint">Scan QR code ini pada pintu masuk area event</p>
-                <div class="ticket-code">{{ $ticket->registration->registration_code }}</div>
-
-                @if($ticket->is_used)
-                    <div class="warning-used">
-                        ⚠️ Tiket ini telah diverifikasi pada<br>
-                        <span style="font-size: 12px; opacity: 0.8;">{{ $ticket->used_at?->isoFormat('D MMM Y, HH:mm') }} WIB</span>
+            <div class="ticket-body">
+                <div class="attendee-info">
+                    <div class="status-badge">
+                        ✅ Tiket Aktif & Valid
                     </div>
-                @endif
-            </div>
+                    <h2 class="attendee-name">{{ $ticket->registration->full_name }}</h2>
+                    <div class="attendee-sub">
+                        {{ $ticket->registration->email }}
+                        @if($ticket->registration->institution)
+                            · {{ $ticket->registration->institution }}
+                        @endif
+                    </div>
+                </div>
 
-            <div class="actions">
-                <a href="{{ route('ticket.download', $ticket->token) }}" class="btn btn-primary">
-                    📥 Simpan QR ke Galeri
-                </a>
-                <button class="btn btn-secondary" onclick="window.print()">
-                    🖨️ Cetak atau Simpan PDF
-                </button>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-key">Kode Registrasi</div>
+                        <div class="detail-val">{{ $ticket->registration->registration_code }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-key">No. Identitas (NIK)</div>
+                        <div class="detail-val">{{ $ticket->registration->id_number }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-key">Status Pembayaran</div>
+                        <div class="detail-val">
+                            {{ $ticket->registration->payment_status === 'free' ? '🎁 Gratis' : '✅ Lunas' }}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-key">No. Telepon</div>
+                        <div class="detail-val">{{ $ticket->registration->phone }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-key">Jenis Kelamin</div>
+                        <div class="detail-val">
+                            {{ $ticket->registration->gender === 'male' ? '👨 Laki-laki' : '👩 Perempuan' }}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-key">Instansi</div>
+                        <div class="detail-val">{{ $ticket->registration->institution ?: '-' }}</div>
+                    </div>
+                    @if($ticket->registration->amount_paid > 0)
+                        <div class="detail-item">
+                            <div class="detail-key">Total Bayar</div>
+                            <div class="detail-val">{{ $ticket->registration->formatted_amount }}</div>
+                        </div>
+                    @endif
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <div class="detail-key">Alamat</div>
+                        <div class="detail-val">{{ $ticket->registration->address ?: '-' }}</div>
+                    </div>
+                </div>
+
+                <div class="qr-section">
+                    <img src="{{ $ticket->qr_url }}" alt="QR Code Tiket"
+                        onerror="this.onerror=null;this.src='{{ Storage::url($ticket->qr_code_path) }}';">
+                    <p class="qr-hint">Scan QR code ini pada pintu masuk area event</p>
+                    <div class="ticket-code">{{ $ticket->registration->registration_code }}</div>
+
+                    @if($ticket->is_used)
+                        <div class="warning-used">
+                            ⚠️ Tiket ini telah diverifikasi pada<br>
+                            <span
+                                style="font-size: 12px; opacity: 0.8;">{{ $ticket->used_at?->isoFormat('D MMM Y, HH:mm') }}
+                                WIB</span>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="actions">
+                    <a href="{{ route('ticket.download', $ticket->token) }}" class="btn btn-primary">
+                        📥 Simpan QR ke Galeri
+                    </a>
+                    <button class="btn btn-secondary" onclick="window.print()">
+                        🖨️ Cetak atau Simpan PDF
+                    </button>
+                </div>
             </div>
         </div>
+
+        <p class="footer-note"
+            style="color: rgba(255,255,255,0.4); font-size: 13px; text-align: center; margin-top: 24px; font-weight: 500;">
+            Simpan screenshot tiket ini untuk akses lebih cepat
+        </p>
     </div>
 
-    <p class="footer-note" style="color: rgba(255,255,255,0.4); font-size: 13px; text-align: center; margin-top: 24px; font-weight: 500;">
-        Simpan screenshot tiket ini untuk akses lebih cepat
-    </p>
-</div>
+    <style>
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
 
-<style>
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(1); opacity: 0.5; }
-}
-</style>
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+        }
+    </style>
 
 </body>
+
 </html>
