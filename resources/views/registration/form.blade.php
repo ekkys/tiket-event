@@ -499,31 +499,35 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>NIK / No. KTP</label>
+                        <label>NIK / No. KTP <span class="req">*</span></label>
                         <input type="text" name="id_number" id="nikInput" value="{{ old('id_number') }}"
-                            placeholder="16 digit NIK (opsional)" maxlength="16">
+                            placeholder="Masukkan 16 digit NIK" maxlength="16" required>
+                        @error('id_number')<div class="error-msg">{{ $message }}</div>@enderror
                         <div id="nikFeedback" style="font-size: 11px; margin-top: 6px; font-weight: 700;"></div>
                     </div>
                     <div class="form-group">
-                        <label>Jenis Kelamin</label>
-                        <select name="gender">
+                        <label>Jenis Kelamin <span class="req">*</span></label>
+                        <select name="gender" required>
                             <option value="">-- Pilih --</option>
                             <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Laki-laki</option>
                             <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Perempuan</option>
                         </select>
+                        @error('gender')<div class="error-msg">{{ $message }}</div>@enderror
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Asal Instansi / Sekolah / Kampus</label>
+                    <label>Asal Instansi / Sekolah / Kampus <span class="req">*</span></label>
                     <input type="text" name="institution" value="{{ old('institution') }}"
-                        placeholder="Contoh: Universitas Airlangga, SMAN 1 Surabaya, dll">
+                        placeholder="Contoh: Universitas Airlangga, SMAN 1 Surabaya, dll" required>
+                    @error('institution')<div class="error-msg">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="form-group">
-                    <label>Alamat</label>
+                    <label>Alamat <span class="req">*</span></label>
                     <textarea name="address" rows="2"
-                        placeholder="Alamat lengkap (opsional)">{{ old('address') }}</textarea>
+                        placeholder="Masukkan alamat lengkap Anda" required>{{ old('address') }}</textarea>
+                    @error('address')<div class="error-msg">{{ $message }}</div>@enderror
                 </div>
 
                 @if($event->terms_and_conditions)
