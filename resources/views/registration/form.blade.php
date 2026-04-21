@@ -595,12 +595,15 @@
         const isFree = {{ $event->is_free ? 'true' : 'false' }};
 
         regForm.addEventListener('submit', function (e) {
-            // Jika berbayar, biarkan normal submit ke payment gateway (atau AJAX jika ingin konsisten)
-            // Namun user minta "Hanya untuk tiket gratis" untuk modal antrian.
+            // Jika berbayar, biarkan normal submit ke payment gateway
             if (!isFree) return; 
 
             e.preventDefault();
             
+            // Hapus pesan error sebelumnya
+            document.querySelectorAll('.error-msg').forEach(el => el.remove());
+            document.querySelectorAll('input, select, textarea').forEach(el => el.classList.remove('error'));
+
             submitBtn.disabled = true;
             btnText.textContent = '⏳ Memproses...';
 
@@ -615,19 +618,35 @@
                 }
             })
             .then(async response => {
-                const isJson = response.headers.get('content-type')?.includes('application/json');
-                const data = isJson ? await response.json() : null;
+                const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data?.message || `Server error: ${response.status}`);
+                    if (response.status === 422 && data.errors) {
+                        // Tampilkan error per field
+                        Object.keys(data.errors).forEach(field => {
+                            const input = document.querySelector(`[name="${field}"]`);
+                            if (input) {
+                                input.classList.add('error');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'error-msg';
+                                errorDiv.textContent = data.errors[field][0];
+                                input.parentNode.appendChild(errorDiv);
+                            }
+                        });
+                        
+                        // Scroll ke error pertama
+                        const firstError = document.querySelector('.error');
+                        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        throw new Error('Validasi gagal. Silakan periksa kembali formulir Anda.');
+                    }
+                    throw new Error(data.message || `Server error: ${response.status}`);
                 }
                 return data;
             })
             .then(data => {
-
                 if (data.success) {
                     if (data.registration_code) {
-                        // Tampilkan Modal Antrian
                         queueModal.style.display = 'flex';
                         startPolling(data.registration_code);
                     } else if (data.redirect) {
@@ -641,7 +660,9 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Gagal mengirim data. Periksa koneksi internet Anda.');
+                if (error.message !== 'Validasi gagal. Silakan periksa kembali formulir Anda.') {
+                    alert(error.message || 'Gagal mengirim data. Periksa koneksi internet Anda.');
+                }
                 submitBtn.disabled = false;
                 btnText.textContent = isFree ? '🎁 Daftar Sekarang' : '💳 Lanjut Pembayaran';
             });

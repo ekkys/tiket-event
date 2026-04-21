@@ -31,9 +31,12 @@ Route::get('/tiket/{token}', [TicketController::class , 'show'])->name('ticket.s
 Route::get('/tiket/{token}/download', [TicketController::class , 'download'])->name('ticket.download');
 
 // ---- Scanner Petugas ----
-Route::get('/scan', [ScannerController::class , 'index'])->name('scanner.index');
-Route::post('/scan/verify', [ScannerController::class , 'verify'])->name('scanner.verify');
-Route::get('/scan/stats', [ScannerController::class , 'stats'])->name('scanner.stats');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/scan', [ScannerController::class , 'index'])->name('scanner.index');
+    Route::post('/scan/verify', [ScannerController::class , 'verify'])->name('scanner.verify');
+    Route::get('/scan/stats', [ScannerController::class , 'stats'])->name('scanner.stats');
+});
+
 // URL di-encode ke QR code, redirect ke scanner
 Route::get('/v/{token}', function ($token) {
     return redirect()->route('scanner.index', ['token' => $token]);
