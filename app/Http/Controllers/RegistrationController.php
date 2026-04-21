@@ -49,14 +49,19 @@ class RegistrationController extends Controller
             'full_name'      => 'required|string|max:100',
             'email'          => 'required|email|max:150',
             'phone'          => 'required|string|max:20|regex:/^[0-9+\-\s]+$/',
-            'id_number'      => 'nullable|string|max:20',
-            'gender'         => 'nullable|in:male,female',
-            'institution'    => 'nullable|string|max:100',
-            'address'        => 'nullable|string|max:300',
+            'id_number'      => 'required|string|size:16',
+            'gender'         => 'required|in:male,female',
+            'institution'    => 'required|string|max:100',
+            'address'        => 'required|string|max:300',
             'terms_accepted' => 'required|accepted', // Validasi centang S&K
         ], [
             'email.unique'            => 'Email ini sudah terdaftar untuk event ini.',
             'phone.unique'            => 'Nomor telepon ini sudah terdaftar untuk event ini.',
+            'id_number.required'      => 'NIK / No. KTP wajib diisi.',
+            'id_number.size'          => 'NIK harus berjumlah 16 digit.',
+            'gender.required'         => 'Jenis kelamin wajib dipilih.',
+            'institution.required'    => 'Asal instansi wajib diisi.',
+            'address.required'        => 'Alamat wajib diisi.',
             'terms_accepted.required' => 'Anda harus menyetujui Syarat & Ketentuan untuk mendaftar.',
             'terms_accepted.accepted' => 'Anda harus menyetujui Syarat & Ketentuan untuk mendaftar.',
         ]);
