@@ -18,7 +18,7 @@ class ScannerController extends Controller
     // API endpoint scan QR - dioptimasi untuk kecepatan
     public function verify(Request $request)
     {
-        $token       = $request->input('token');
+        $token = $request->input('token');
         $scannerName = auth()->user()->name;
 
         if (!$token) {
@@ -30,18 +30,20 @@ class ScannerController extends Controller
 
         // Cari tiket - bisa lewat token (QR) atau registration_code (Input Manual)
         $ticket = Ticket::where('token', $token)
-            ->orWhereHas('registration', function($q) use ($token) {
+            ->orWhereHas('registration', function ($q) use ($token) {
                 $q->where('registration_code', $token);
             })
-            ->with(['registration:id,full_name,email,phone,institution,event_id,payment_status',
-                    'registration.event:id,name,event_date,user_id'])
+            ->with([
+                'registration:id,full_name,email,phone,institution,id_number,gender,address,registration_code,event_id,payment_status',
+                'registration.event:id,name,event_date,user_id'
+            ])
             ->first();
 
         if (!$ticket) {
             $this->logScan($token, false, 'Tiket tidak ditemukan', $scannerName, $request->ip(), null);
             return response()->json([
                 'success' => false,
-                'status'  => 'invalid',
+                'status' => 'invalid',
                 'message' => '❌ Tiket tidak valid atau tidak ditemukan',
             ]);
         }
@@ -51,7 +53,7 @@ class ScannerController extends Controller
             $this->logScan($token, false, 'Bukan pembuat event (Akses Ditolak)', $scannerName, $request->ip(), $ticket->id);
             return response()->json([
                 'success' => false,
-                'status'  => 'unauthorized',
+                'status' => 'unauthorized',
                 'message' => '❌ Anda tidak memiliki akses untuk menscan tiket event ini.',
             ], 403);
         }
@@ -60,7 +62,7 @@ class ScannerController extends Controller
             $this->logScan($token, false, 'Belum bayar', $scannerName, $request->ip(), $ticket->id);
             return response()->json([
                 'success' => false,
-                'status'  => 'unpaid',
+                'status' => 'unpaid',
                 'message' => '💳 Tiket belum lunas pembayaran',
             ]);
         }
@@ -68,12 +70,22 @@ class ScannerController extends Controller
         if ($ticket->is_used) {
             $this->logScan($token, false, 'Sudah digunakan', $scannerName, $request->ip(), $ticket->id);
             return response()->json([
-                'success'  => false,
-                'status'   => 'used',
-                'message'  => '⚠️ Tiket ini SUDAH DIGUNAKAN',
-                'used_at'  => $ticket->used_at?->format('d M Y H:i'),
-                'used_by'  => $ticket->used_by,
-                'attendee' => $ticket->registration->full_name,
+                'success' => false,
+                'status' => 'used',
+                'message' => '⚠️ Tiket ini SUDAH DIGUNAKAN',
+                'used_at' => $ticket->used_at?->format('d M Y H:i'),
+                'used_by' => $ticket->used_by,
+                'attendee' => [
+                    'name' => $ticket->registration->full_name,
+                    'email' => $ticket->registration->email,
+                    'phone' => $ticket->registration->phone,
+                    'institution' => $ticket->registration->institution,
+                    'id_number' => $ticket->registration->id_number,
+                    'gender' => $ticket->registration->gender == 'male' ? 'Laki-laki' : 'Perempuan',
+                    'address' => $ticket->registration->address,
+                    'registration_code' => $ticket->registration->registration_code,
+                ],
+                'event' => $ticket->registration->event->name,
             ]);
         }
 
@@ -81,17 +93,17 @@ class ScannerController extends Controller
         $updated = Ticket::where('id', $ticket->id)
             ->where('is_used', false)   // double-check race condition
             ->update([
-                'is_used'    => true,
-                'used_at'    => now(),
-                'used_by'    => $scannerName,
-                'used_device'=> $request->userAgent(),
+                'is_used' => true,
+                'used_at' => now(),
+                'used_by' => $scannerName,
+                'used_device' => $request->userAgent(),
             ]);
 
         if (!$updated) {
             // Race condition - tiket baru saja discan orang lain
             return response()->json([
                 'success' => false,
-                'status'  => 'used',
+                'status' => 'used',
                 'message' => '⚠️ Tiket ini baru saja digunakan (double scan)',
             ]);
         }
@@ -99,17 +111,21 @@ class ScannerController extends Controller
         $this->logScan($token, true, 'Berhasil masuk', $scannerName, $request->ip(), $ticket->id);
 
         return response()->json([
-            'success'     => true,
-            'status'      => 'valid',
-            'message'     => '✅ TIKET VALID - Silakan Masuk!',
-            'attendee'    => [
-                'name'        => $ticket->registration->full_name,
-                'email'       => $ticket->registration->email,
-                'phone'       => $ticket->registration->phone,
+            'success' => true,
+            'status' => 'valid',
+            'message' => '✅ TIKET VALID - Silakan Masuk!',
+            'attendee' => [
+                'name' => $ticket->registration->full_name,
+                'email' => $ticket->registration->email,
+                'phone' => $ticket->registration->phone,
                 'institution' => $ticket->registration->institution,
+                'id_number' => $ticket->registration->id_number,
+                'gender' => $ticket->registration->gender == 'male' ? 'Laki-laki' : 'Perempuan',
+                'address' => $ticket->registration->address,
+                'registration_code' => $ticket->registration->registration_code,
             ],
-            'event'       => $ticket->registration->event->name,
-            'checked_in'  => now()->format('d M Y H:i:s'),
+            'event' => $ticket->registration->event->name,
+            'checked_in' => now()->format('d M Y H:i:s'),
         ]);
     }
 
@@ -118,12 +134,12 @@ class ScannerController extends Controller
         // Insert log secara async agar scan tidak lambat
         dispatch(function () use ($token, $success, $message, $scanner, $ip, $ticketId) {
             \App\Models\ScanLog::create([
-                'token'        => $token,
-                'ticket_id'    => $ticketId,
-                'success'      => $success,
-                'message'      => $message,
+                'token' => $token,
+                'ticket_id' => $ticketId,
+                'success' => $success,
+                'message' => $message,
                 'scanner_name' => $scanner,
-                'ip_address'   => $ip,
+                'ip_address' => $ip,
             ]);
         })->afterResponse();
     }
@@ -136,7 +152,7 @@ class ScannerController extends Controller
             return response()->json([
                 'total_checked_in' => Ticket::whereHas('registration.event', fn($q) => $q->where('user_id', $userId))
                     ->where('is_used', true)->count(),
-                'total_tickets'    => Ticket::whereHas('registration.event', fn($q) => $q->where('user_id', $userId))
+                'total_tickets' => Ticket::whereHas('registration.event', fn($q) => $q->where('user_id', $userId))
                     ->count(),
             ]);
         });
