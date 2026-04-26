@@ -143,29 +143,8 @@
                             <th>Waktu</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($logs as $log)
-                        <tr>
-                            <td>{{ ($logs->currentPage() - 1) * $logs->perPage() + $loop->iteration }}</td>
-                            <td>
-                                @if($log->ticket?->registration)
-                                    <div style="font-weight:700;">{{ $log->ticket->registration->full_name }}</div>
-                                    <div style="font-size:11px; color:var(--muted);">{{ $log->token }}</div>
-                                @else
-                                    <span style="font-family: monospace; font-size: 12px; color: var(--muted);">{{ $log->token }}</span>
-                                @endif
-                            </td>
-                            <td style="font-size: 12px;">{{ $log->ticket?->registration->id_number ?? '-' }}</td>
-                            <td>
-                                <span class="badge badge-{{ $log->success ? 'success' : 'error' }}">
-                                    {{ $log->success ? 'Berhasil' : 'Gagal' }}
-                                </span>
-                            </td>
-                            <td>{{ $log->message }}</td>
-                            <td style="font-weight:600;">{{ $log->scanner_name }}</td>
-                            <td style="color:var(--muted); font-size:12px;">{{ $log->created_at->format('d/m/Y H:i:s') }}</td>
-                        </tr>
-                        @endforeach
+                    <tbody id="logTableBody">
+                        @include('admin.partials.scan-log-rows')
                     </tbody>
                 </table>
             </div>
@@ -188,6 +167,42 @@
 
     menuToggle.addEventListener('click', toggleMenu);
     overlay.addEventListener('click', toggleMenu);
+
+    // Auto Refresh Logic
+    function refreshLogs() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const page = urlParams.get('page') || '1';
+        const search = urlParams.get('search') || '';
+
+        console.log('Checking for new logs... Page:', page, 'Search:', search);
+
+        if (page === '1' && search === '') {
+            fetch(window.location.href, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'text/html'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                const tbody = document.getElementById('logTableBody');
+                if (html && html.trim().length > 0) {
+                    console.log('Logs updated at ' + new Date().toLocaleTimeString());
+                    tbody.innerHTML = html;
+                }
+            })
+            .catch(error => console.error('Error refreshing logs:', error));
+        } else {
+            console.log('Auto-refresh skipped: Not on page 1 or search is active.');
+        }
+    }
+
+    // Refresh every 5 seconds
+    console.log('Auto-refresh initialized.');
+    setInterval(refreshLogs, 5000);
 </script>
 
 </body>

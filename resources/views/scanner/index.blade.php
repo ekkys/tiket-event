@@ -403,8 +403,11 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary" style="margin-top: 24px; width: 100%;" onclick="resetScanner()">Scan Tiket
-                Lain</button>
+            <div id="verifyAction" style="display: none;">
+                <button class="btn btn-primary" style="margin-top: 24px; width: 100%; background: var(--success); box-shadow: 0 8px 16px rgba(0, 196, 140, 0.2);" id="btnConfirm" onclick="confirmVerification()">✅ Verifikasi & Konfirmasi</button>
+            </div>
+
+            <button class="btn btn-primary" style="margin-top: 24px; width: 100%;" id="btnReset" onclick="resetScanner()">Scan Tiket Lain</button>
         </div>
 
         <div class="history">
@@ -460,8 +463,10 @@
 
                 const data = await response.json();
                 showResult(data);
-                updateStats();
-                addToHistory(data);
+                if (data.status !== 'valid') {
+                    updateStats();
+                    addToHistory(data);
+                }
 
             } catch (error) {
                 alert('Terjadi kesalahan koneksi. Silakan coba lagi.');
@@ -481,9 +486,9 @@
             if (data.status === 'valid') {
                 resDiv.className = 'valid';
                 resIcon.textContent = '✅';
-                resTitle.textContent = 'TIKET VALID';
+                resTitle.textContent = 'TIKET DITEMUKAN';
                 resTitle.style.color = 'var(--success)';
-                resMsg.textContent = 'Data terverifikasi. Silakan izinkan masuk.';
+                resMsg.textContent = 'Silakan cek identitas peserta di bawah.';
 
                 document.getElementById('resEvent').textContent = data.event;
                 document.getElementById('resName').textContent = data.attendee.name;
@@ -494,7 +499,14 @@
                 document.getElementById('resGender').textContent = data.attendee.gender || '-';
                 document.getElementById('resInst').textContent = data.attendee.institution || '-';
                 document.getElementById('resAddress').textContent = data.attendee.address || '-';
-                document.getElementById('resCheckIn').textContent = data.checked_in;
+                document.getElementById('resCheckIn').textContent = 'Menunggu Verifikasi...';
+
+                // Show verify button, hide reset button
+                document.getElementById('verifyAction').style.display = 'block';
+                document.getElementById('btnReset').style.display = 'none';
+                
+                // Store token for confirmation
+                window.currentToken = data.token;
             } else if (data.status === 'used') {
                 resDiv.className = 'used';
                 resIcon.textContent = '⚠️';
@@ -512,6 +524,9 @@
                 document.getElementById('resInst').textContent = data.attendee.institution || '-';
                 document.getElementById('resAddress').textContent = data.attendee.address || '-';
                 document.getElementById('resCheckIn').textContent = data.used_at;
+
+                document.getElementById('verifyAction').style.display = 'none';
+                document.getElementById('btnReset').style.display = 'block';
             } else {
                 resDiv.className = 'invalid';
                 resIcon.textContent = '❌';
@@ -521,12 +536,63 @@
 
                 const fields = ['resEvent', 'resName', 'resRegCode', 'resEmail', 'resPhone', 'resIdNumber', 'resGender', 'resInst', 'resAddress', 'resCheckIn'];
                 fields.forEach(id => document.getElementById(id).textContent = '-');
+
+                document.getElementById('verifyAction').style.display = 'none';
+                document.getElementById('btnReset').style.display = 'block';
+            }
+        }
+
+        async function confirmVerification() {
+            const btn = document.getElementById('btnConfirm');
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '⌛ Memproses...';
+
+            try {
+                const response = await fetch('{{ route("scanner.confirm") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ token: window.currentToken })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('resTitle').textContent = 'VERIFIKASI BERHASIL';
+                    document.getElementById('resMsg').textContent = 'Data log telah tersimpan. Silakan masuk.';
+                    document.getElementById('resCheckIn').textContent = data.checked_in;
+                    
+                    document.getElementById('verifyAction').style.display = 'none';
+                    document.getElementById('btnReset').style.display = 'block';
+                    
+                    updateStats();
+                    // Add to history with success status
+                    addToHistory({
+                        status: 'valid',
+                        attendee: document.getElementById('resName').textContent
+                    });
+                } else {
+                    alert(data.message || 'Gagal melakukan verifikasi.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan koneksi. Silakan coba lagi.');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         }
 
         function resetScanner() {
             document.getElementById('result').style.display = 'none';
             document.getElementById('tokenInput').value = '';
+            document.getElementById('btnConfirm').disabled = false;
+            document.getElementById('btnConfirm').innerHTML = '✅ Verifikasi & Konfirmasi';
+            window.currentToken = null;
             startScanner();
         }
 

@@ -94,6 +94,11 @@ class AdminController extends Controller
         }
 
         $logs = $query->paginate(15)->withQueryString();
+
+        if ($request->ajax() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return view('admin.partials.scan-log-rows', compact('logs'))->render();
+        }
+
         return view('admin.scan-logs', compact('logs'));
     }
 

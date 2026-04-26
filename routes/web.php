@@ -34,6 +34,7 @@ Route::get('/tiket/{token}/download', [TicketController::class , 'download'])->n
 Route::middleware(['auth'])->group(function () {
     Route::get('/scan', [ScannerController::class , 'index'])->name('scanner.index');
     Route::post('/scan/verify', [ScannerController::class , 'verify'])->name('scanner.verify');
+    Route::post('/scan/confirm', [ScannerController::class , 'confirm'])->name('scanner.confirm');
     Route::get('/scan/stats', [ScannerController::class , 'stats'])->name('scanner.stats');
 });
 

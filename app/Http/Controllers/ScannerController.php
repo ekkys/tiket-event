@@ -25,9 +25,6 @@ class ScannerController extends Controller
             return response()->json(['success' => false, 'message' => 'Token tidak valid'], 400);
         }
 
-        // Cache hasil verifikasi selama 60 detik (hindari double-scan spam)
-        $cacheKey = 'scan_result:' . $token;
-
         // Cari tiket - bisa lewat token (QR) atau registration_code (Input Manual)
         $ticket = Ticket::where('token', $token)
             ->orWhereHas('registration', function ($q) use ($token) {
@@ -40,7 +37,6 @@ class ScannerController extends Controller
             ->first();
 
         if (!$ticket) {
-            $this->logScan($token, false, 'Tiket tidak ditemukan', $scannerName, $request->ip(), null);
             return response()->json([
                 'success' => false,
                 'status' => 'invalid',
@@ -50,7 +46,6 @@ class ScannerController extends Controller
 
         // Validasi: Hanya pembuat event yang bisa scan
         if ($ticket->registration->event->user_id !== auth()->id()) {
-            $this->logScan($token, false, 'Bukan pembuat event (Akses Ditolak)', $scannerName, $request->ip(), $ticket->id);
             return response()->json([
                 'success' => false,
                 'status' => 'unauthorized',
@@ -59,7 +54,6 @@ class ScannerController extends Controller
         }
 
         if (!$ticket->registration->isPaid()) {
-            $this->logScan($token, false, 'Belum bayar', $scannerName, $request->ip(), $ticket->id);
             return response()->json([
                 'success' => false,
                 'status' => 'unpaid',
@@ -68,7 +62,6 @@ class ScannerController extends Controller
         }
 
         if ($ticket->is_used) {
-            $this->logScan($token, false, 'Sudah digunakan', $scannerName, $request->ip(), $ticket->id);
             return response()->json([
                 'success' => false,
                 'status' => 'used',
@@ -89,31 +82,10 @@ class ScannerController extends Controller
             ]);
         }
 
-        // Tandai tiket sudah digunakan (atomic update)
-        $updated = Ticket::where('id', $ticket->id)
-            ->where('is_used', false)   // double-check race condition
-            ->update([
-                'is_used' => true,
-                'used_at' => now(),
-                'used_by' => $scannerName,
-                'used_device' => $request->userAgent(),
-            ]);
-
-        if (!$updated) {
-            // Race condition - tiket baru saja discan orang lain
-            return response()->json([
-                'success' => false,
-                'status' => 'used',
-                'message' => '⚠️ Tiket ini baru saja digunakan (double scan)',
-            ]);
-        }
-
-        $this->logScan($token, true, 'Berhasil masuk', $scannerName, $request->ip(), $ticket->id);
-
         return response()->json([
             'success' => true,
             'status' => 'valid',
-            'message' => '✅ TIKET VALID - Silakan Masuk!',
+            'message' => '✅ TIKET DITEMUKAN - Silakan Cek Identitas',
             'attendee' => [
                 'name' => $ticket->registration->full_name,
                 'email' => $ticket->registration->email,
@@ -125,6 +97,56 @@ class ScannerController extends Controller
                 'registration_code' => $ticket->registration->registration_code,
             ],
             'event' => $ticket->registration->event->name,
+            'token' => $token,
+        ]);
+    }
+
+    public function confirm(Request $request)
+    {
+        $token = $request->input('token');
+        $scannerName = auth()->user()->name;
+
+        if (!$token) {
+            return response()->json(['success' => false, 'message' => 'Token tidak valid'], 400);
+        }
+
+        $ticket = Ticket::where('token', $token)
+            ->orWhereHas('registration', function ($q) use ($token) {
+                $q->where('registration_code', $token);
+            })
+            ->with(['registration.event'])
+            ->first();
+
+        if (!$ticket) {
+            return response()->json(['success' => false, 'message' => 'Tiket tidak ditemukan'], 404);
+        }
+
+        if ($ticket->registration->event->user_id !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak'], 403);
+        }
+
+        if ($ticket->is_used) {
+            return response()->json(['success' => false, 'message' => 'Tiket sudah digunakan'], 400);
+        }
+
+        $updated = Ticket::where('id', $ticket->id)
+            ->where('is_used', false)
+            ->update([
+                'is_used' => true,
+                'used_at' => now(),
+                'used_by' => $scannerName,
+                'used_device' => $request->userAgent(),
+            ]);
+
+        if (!$updated) {
+            return response()->json(['success' => false, 'message' => 'Tiket baru saja digunakan oleh petugas lain'], 400);
+        }
+
+        $this->logScan($token, true, 'Berhasil masuk (Verifikasi Manual)', $scannerName, $request->ip(), $ticket->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => '✅ Verifikasi Berhasil!',
             'checked_in' => now()->format('d M Y H:i:s'),
         ]);
     }
